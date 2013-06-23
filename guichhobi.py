@@ -28,18 +28,23 @@ If you edit the caption or the keywords (you will know because the field will ch
 
 Starting the program with the -d option will print debugger messages to the console
 """
-import Tkinter as tki, threading, Queue
+import logging
+logger = logging.getLogger(__name__)
+import Tkinter as tki, threading, Queue, argparse, time
 import libchhobi as lch
 
-def query_finder(q):
-  """q is a Queue object."""
+def query_finder_thread(q, stop_event):
+  """q is a Queue object, stop_event is an Event.
+  stop_event from http://stackoverflow.com/questions/6524459/stopping-a-thread-python
+  """
   selected_files = set([])
-  while True:
+  while not stop_event.is_set():
     if q.empty():
       new_selected_files = set(lch.get_paths_of_selected())
       if new_selected_files != selected_files:
         selected_files = new_selected_files
         q.put(selected_files)
+    time.sleep(.2)
 
 class App(object):
 
@@ -48,7 +53,16 @@ class App(object):
     self.root.wm_title('Chhobi2')
 
     self.setup_window()
-    self.setup_finder_polling()
+    self.setup_finder_thread()
+    self.start_poll()
+
+    self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
+
+  def cleanup_on_exit(self):
+    """Needed to shutdown the polling thread."""
+    print 'Window closed. Cleaning up and quitting'
+    self.poll_thread_stop_event.set()
+    self.root.quit() #Allow the rest of the quit process to continue
 
   def setup_window(self):
     self.query_win = tki.Text(self.root, undo=True, width=50, height=3)
@@ -83,12 +97,12 @@ class App(object):
     self.exif_win['font'] = ('consolas', '10')
     self.exif_win.pack(side='left', expand=True, fill='both')
 
-  def setup_finder_polling(self):
+  def setup_finder_thread(self):
     self.queue = Queue.Queue(maxsize=1)
     self.poll_interval = 250
-    self.poll_thread = threading.Thread(target=query_finder, name='FinderPoller', args=(self.queue,))
+    self.poll_thread_stop_event = threading.Event()
+    self.poll_thread = threading.Thread(target=query_finder_thread, name='FinderPoller', args=(self.queue,self.poll_thread_stop_event))
     self.poll_thread.start()
-    self.start_poll()
 
   def start_poll(self):
     self._poll_job_id = self.root.after(self.poll_interval, self.poll)
@@ -103,5 +117,15 @@ class App(object):
       self.path_win.insert(tki.END, self.selected_files)
     self._poll_job_id = self.root.after(self.poll_interval, self.poll)
 
-app = App()
-app.root.mainloop()
+if __name__ == "__main__":
+  parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
+  parser.add_argument('-d', default=False, action='store_true', help='Print debugging messages')
+  args = parser.parse_args()
+  if args.d:
+    level=logging.DEBUG
+  else:
+    level=logging.INFO
+  logging.basicConfig(level=logging.DEBUG)
+
+  app = App()
+  app.root.mainloop()
