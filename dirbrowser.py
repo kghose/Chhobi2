@@ -58,7 +58,7 @@ class DirBrowse(tki.Frame):
     ptype = None
     for file in files:
       fname = os.path.split(file)[1]
-      ins('','end', text=fname, values=[file, ptype], iid=file)
+      ins('','end', text=file, values=[file, ptype], iid=file)
 
   def update_tree(self, event):
     self.fill_tree(self.treeview.focus())
