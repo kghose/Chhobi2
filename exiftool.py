@@ -38,7 +38,12 @@ class PersistentExifTool():
     while not output[-32:].strip().endswith(response_end):
       output += os.read(fd, 4096)
     if expecting_response:
-      return json.loads(output.strip()[:-len(response_end)].decode("utf-8"))
+      logging.debug(output)
+      stripped = output.strip()[:-len(response_end)]
+      if len(stripped):
+        return json.loads(stripped.decode("utf-8"))
+      else:
+        return []
 
   def get_metadata_for_files(self, file_list):
     """Get standard metadata from the files."""
