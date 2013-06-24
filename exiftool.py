@@ -53,7 +53,12 @@ class PersistentExifTool():
     for file in file_list:
       query += file + '\n'
     query += base_query + '\n'
-    return self.execute(query)
+    meta_data = self.execute(query)#Singleton keywords need to be converted into a list
+    for md in meta_data:
+      if md.has_key('Keywords'):
+        if not isinstance(md['Keywords'], list):
+          md['Keywords'] = [md['Keywords']]
+    return meta_data
 
   def set_metadata_for_files(self, file_list, meta_data):
     """Set selected metadata for the files. If keywords are present they are passed in as tuples containing the
