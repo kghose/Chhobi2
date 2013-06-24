@@ -131,8 +131,12 @@ def execute(prog_args, blocking=True):
     return []
 
 def get_metadata(file):
+  exiv_tags = ['model', 'lens', 'focal length', 'DOF', 'ISO', 'shutter', '1/f', 'caption', 'keywords']
   exif_args = ['exiftool',  '-forcePrint', '-model', '-lensid', '-focallength', '-Dof', '-ISO', '-ShutterSpeed', '-fnumber', '-Caption-Abstract', '-keywords', file]
-  return execute(exif_args)
+  if not os.path.isdir(file):
+    return {key: value for key,value in zip(exiv_tags, execute(exif_args))}
+  else:
+    return None
 
 def set_caption(file, caption):
   #exif_args = ['exiftool', '-overwrite_original', '-P', '-Caption-Abstract={:s}'.format(caption), file]
