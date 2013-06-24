@@ -2,35 +2,31 @@
 -----------------------
 |         A           |
 |---------------------|
+|                     |
 |         B           |
+|                     |
 |---------------------|
 |                     |
 |         C           |
 |                     |
-|---------------------|
-|                     |
-|         D           |
-|                     |
 |---------|-----------|
 |         |           |
-|    E    |     F     |
+|    D    |     E     |
 |         |           |
 -----------------------
 
 A is the search panel where you form your query. Hitting enter executes the query
-B is the RawQuery window where you can see the RawQuery that will be fed to Spotlight
-C is the directory/file list browser
-D is the comments pane where you can read and edit the photo comments. Hit <CTRL> + S to save, ESC or navigate away to cancel
-E is the keywords pane where the keywords are listed (one to a line) and can be edited. Hit <CTRL> + S to save, ESC or navigate away to cancel
-F is the EXIF pane where a bunch of read only EXIF data is shown
+B is the directory/file list browser
+C is the comments pane where you can read and edit the photo comments. Hit <CTRL> + S to save, ESC or navigate away to cancel
+D is the keywords pane where the keywords are listed (one to a line) and can be edited. Hit <CTRL> + S to save, ESC or navigate away to cancel
+E is the EXIF pane where a bunch of read only EXIF data is shown
 
 Starting the program with the -d option will print debugger messages to the console
 """
 import logging
 logger = logging.getLogger(__name__)
 import Tkinter as tki, threading, Queue, argparse, time
-import libchhobi as lch
-import dirbrowser as dirb
+import libchhobi as lch, dirbrowser as dirb, exiftool
 
 class App(object):
 
@@ -39,6 +35,7 @@ class App(object):
     self.root.wm_title('Chhobi2')
     self.setup_window()
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
+    self.etool = exiftool.PersistentExifTool()
 
   def cleanup_on_exit(self):
     """Needed to shutdown the polling thread."""
@@ -53,18 +50,13 @@ class App(object):
     self.query_win.bind('<Return>', self.search_execute)
     #self.query_win.insert(tki.INSERT,'Hi there')
 
-    self.rawquery_win = tki.Text(self.root, undo=True, width=50, height=2, bg='black', fg='white')
-    self.rawquery_win['font'] = ('consolas', '9')
-    self.rawquery_win.pack(side='top', expand=True, fill='both')
-    self.rawquery_win.insert(tki.INSERT,'Hi there')
-
-    self.dir_win = dirb.DirBrowse(self.root, dir_root='/Users/kghose/Pictures')
+    self.dir_win = dirb.DirBrowse(self.root, dir_root='./')#'/Users/kghose/Pictures')
     self.dir_win.pack(side='top', expand=True, fill='both')
     self.dir_win.treeview.bind("<<TreeviewSelect>>", self.selection_changed)
 
-    self.comment_win = tki.Text(self.root, undo=True, width=40, height=3)
-    self.comment_win['font'] = ('consolas', '12')
-    self.comment_win.pack(expand=True, fill='both')
+    self.caption_text = tki.Text(self.root, undo=True, width=40, height=3)
+    self.caption_text['font'] = ('consolas', '12')
+    self.caption_text.pack(expand=True, fill='both')
 
     fr = tki.Frame(self.root)
     fr.pack(side='top', expand=True, fill='both')
@@ -76,7 +68,30 @@ class App(object):
     self.exif_win.pack(side='left', expand=True, fill='both')
 
   def selection_changed(self, event):
-    print self.dir_win.treeview.selection()
+    files = self.dir_win.file_selection()
+    logger.debug(files)
+
+    self.caption_text.delete(1.0, tki.END)
+    self.keywords_win.delete(1.0, tki.END)
+    self.exif_win.delete(1.0,tki.END)
+
+    if len(files):
+      exiv_data = self.etool.get_metadata_for_files(files)
+      cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
+      key_set = set([ky for ky in exiv_data[0].get('Keywords', [])])
+
+      logger.debug(cap_set)
+      logger.debug(key_set)
+
+      for n in range(1,len(exiv_data)):
+        cap_set &= set([exiv_data[n].get('Caption-Abstract', '')])
+        key_set &= set([ky for ky in exiv_data[n].get('Keywords', [])])
+
+      if len(cap_set):
+        self.caption_text.insert(tki.END, cap_set.pop())
+      for key in key_set:
+        self.keywords_win.insert(tki.END, key + '\n')
+
 
   def search_execute(self, event):
     self.dir_win.virtual_flat([
@@ -93,7 +108,7 @@ if __name__ == "__main__":
     level=logging.DEBUG
   else:
     level=logging.INFO
-  logging.basicConfig(level=logging.DEBUG)
+  logging.basicConfig(level=level)
 
   app = App()
   app.root.mainloop()
