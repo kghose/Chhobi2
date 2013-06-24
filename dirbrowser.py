@@ -38,6 +38,10 @@ class DirBrowse(tki.Frame):
       ptype = None
       if os.path.isdir(p):
         ptype = 'directory'
+      else: #We are a regular file
+        P = p.upper()
+        if not P.endswith('JPG') and not P.endswith('TIFF') and not P.endswith('GIF') and not P.endswith('PNG'):
+          continue
 
       fname = os.path.split(p)[1]
       oid = self.treeview.insert(node, 'end', text=fname, values=[p, ptype], iid=p)
@@ -58,3 +62,8 @@ class DirBrowse(tki.Frame):
 
   def update_tree(self, event):
     self.fill_tree(self.treeview.focus())
+
+  def file_selection(self):
+    files = self.treeview.selection()
+    return [fi for fi in files if os.path.isfile(fi)]
+
