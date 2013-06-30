@@ -57,9 +57,8 @@ class App(object):
     self.etool = exiftool.PersistentExifTool()
 
   def cleanup_on_exit(self):
-    """Needed to shutdown the polling thread."""
-    print 'Window closed. Cleaning up and quitting'
-    #self.poll_thread_stop_event.set()
+    """Needed to shutdown the exiftool."""
+    self.etool.close()
     self.root.quit() #Allow the rest of the quit process to continue
 
   def setup_window(self):
@@ -77,10 +76,10 @@ class App(object):
     self.info_text['font'] = ('consolas', '10')
     self.info_text.pack(side='left', expand=True, fill='both')
 
-    self.query_win = tki.Text(self.root, undo=True, width=50, height=3)
-    self.query_win['font'] = ('consolas', '12')
-    self.query_win.pack(side='top', expand=True, fill='both')
-    self.query_win.bind('<Return>', self.search_execute)
+    self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3)
+    self.cmd_win['font'] = ('consolas', '12')
+    self.cmd_win.pack(side='top', expand=True, fill='both')
+    self.cmd_win.bind('<Return>', self.command_execute)
 
   def selection_changed(self, event):
     files = self.dir_win.file_selection()
@@ -119,6 +118,17 @@ class App(object):
     #lch.quick_look_file(files, mode='-p')
     #if len(files) == 1:
     #  lch.reveal_file_in_finder(file_name=files[0])
+
+  def command_execute(self, event):
+    """
+    dw.selection_set(dw.next(dw.selection()))
+    ."""
+    self.dir_win.key_command(self.cmd_win.get(1.0, tki.END).strip())
+    self.cmd_win.delete(1.0, tki.END)
+
+    #from IPython import embed; embed()
+
+
 
   def search_execute(self, event):
     self.dir_win.virtual_flat([
