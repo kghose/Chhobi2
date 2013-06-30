@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 import os, subprocess, json
 
 
-class PersistentExifTool():
+class PersistentExifTool(object):
   """A class that simply opens exiftool with the -stay_open 1 flag and sets up communication via stdin."""
   def __init__(self):
     with open(os.devnull, 'w') as devnull:
@@ -15,9 +15,6 @@ class PersistentExifTool():
         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         stderr=devnull)
     self.running = True
-
-  def __del__(self):
-    self.close()
 
   def close(self):
     if not self.running:
