@@ -92,6 +92,9 @@ class App(object):
       for key in key_set:
         self.keywords_win.insert(tki.END, key + '\n')
 
+    #lch.quick_look_file(files, mode='-p')
+    #if len(files) == 1:
+    #  lch.reveal_file_in_finder(file_name=files[0])
 
   def search_execute(self, event):
     self.dir_win.virtual_flat([
