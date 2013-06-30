@@ -1,6 +1,8 @@
-"""The GUI consists of six panels.
+"""The GUI consists of XXX  write we've finalized this stuff
 -----------------------
+|                     |
 |         A           |
+|                     |
 |---------------------|
 |                     |
 |         B           |
@@ -9,24 +11,41 @@
 |                     |
 |         C           |
 |                     |
-|---------|-----------|
-|         |           |
-|    D    |     E     |
-|         |           |
+|---------------------|
+|         D           |
 -----------------------
 
-A is the search panel where you form your query. Hitting enter executes the query
-B is the directory/file list browser
-C is the comments pane where you can read and edit the photo comments. Hit <CTRL> + S to save, ESC or navigate away to cancel
-D is the keywords pane where the keywords are listed (one to a line) and can be edited. Hit <CTRL> + S to save, ESC or navigate away to cancel
-E is the EXIF pane where a bunch of read only EXIF data is shown
+A is the directory/file list browser
+B is the thumbnail pane
+C is the info pane where you can see the photo comments, keywords
+  and a bunch of EXIF data
+D is the command line. Hitting enter executes the query
 
+Starting the program with the -h option will print this usage manual
 Starting the program with the -d option will print debugger messages to the console
+
+Commands:
+
+d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
+n                - go to next entry in file browser
+p                - go to previous entry in file browser
+>                - if directory, enter. If image, show in preview
+<                - go to parent directory
+c <text>         - set this text as picture caption. Newline is indicated by \n
+k <keyword>      - add this keyword to the current file/selection
+k- <keyword>     - remove this keyword from the current file/selection
+s <query string> - perform this mdfinder query and set the file browser to this virtual listing
+a                - add this file to selection
+x                - remove this file from selection
+v                - toggle virtual listing (selected files)
+
+
 """
 import logging
 logger = logging.getLogger(__name__)
-import Tkinter as tki, threading, Queue, argparse, time
+import Tkinter as tki, threading, Queue, argparse, time, Image, ImageTk
 import libchhobi as lch, dirbrowser as dirb, exiftool
+from cStringIO import StringIO
 
 class App(object):
 
@@ -44,38 +63,35 @@ class App(object):
     self.root.quit() #Allow the rest of the quit process to continue
 
   def setup_window(self):
-    self.query_win = tki.Text(self.root, undo=True, width=50, height=3)
-    self.query_win['font'] = ('consolas', '12')
-    self.query_win.pack(side='top', expand=True, fill='both')
-    self.query_win.bind('<Return>', self.search_execute)
-    #self.query_win.insert(tki.INSERT,'Hi there')
-
     self.dir_win = dirb.DirBrowse(self.root, dir_root='./')#'/Users/kghose/Pictures')
     self.dir_win.pack(side='top', expand=True, fill='both')
     self.dir_win.treeview.bind("<<TreeviewSelect>>", self.selection_changed)
 
-    self.caption_text = tki.Text(self.root, undo=True, width=40, height=3)
-    self.caption_text['font'] = ('consolas', '12')
-    self.caption_text.pack(expand=True, fill='both')
-
     fr = tki.Frame(self.root)
     fr.pack(side='top', expand=True, fill='both')
-    self.keywords_win = tki.Text(fr, undo=True, width=30, height=10)
-    self.keywords_win['font'] = ('consolas', '10')
-    self.keywords_win.pack(side='left', expand=True, fill='both')
-    self.exif_win = tki.Text(fr, undo=True, width=30, height=2, bg='black', fg='white')
-    self.exif_win['font'] = ('consolas', '10')
-    self.exif_win.pack(side='left', expand=True, fill='both')
+
+    self.thumbnail_label = tki.Label(fr)
+    self.thumbnail_label.pack(side='left')
+
+    self.info_text = tki.Text(fr, width=40, height=10)
+    self.info_text['font'] = ('consolas', '10')
+    self.info_text.pack(side='left', expand=True, fill='both')
+
+    self.query_win = tki.Text(self.root, undo=True, width=50, height=3)
+    self.query_win['font'] = ('consolas', '12')
+    self.query_win.pack(side='top', expand=True, fill='both')
+    self.query_win.bind('<Return>', self.search_execute)
 
   def selection_changed(self, event):
     files = self.dir_win.file_selection()
     logger.debug(files)
 
-    self.caption_text.delete(1.0, tki.END)
-    self.keywords_win.delete(1.0, tki.END)
-    self.exif_win.delete(1.0,tki.END)
-
     if len(files):
+      thumbnail = Image.open(StringIO(self.etool.get_preview_image(files[0])))
+      photo = ImageTk.PhotoImage(thumbnail)
+      self.thumbnail_label.config(image=photo)
+      self.thumbnail_label.image = photo #Keep a reference
+
       exiv_data = self.etool.get_metadata_for_files(files)
       cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
       key_set = set([ky for ky in exiv_data[0].get('Keywords', [])])
@@ -87,10 +103,18 @@ class App(object):
         cap_set &= set([exiv_data[n].get('Caption-Abstract', '')])
         key_set &= set([ky for ky in exiv_data[n].get('Keywords', [])])
 
+      info_text = ''
+
       if len(cap_set):
-        self.caption_text.insert(tki.END, cap_set.pop())
+        info_text += 'Caption: {:s}\n'.format(cap_set.pop())
+      else:
+        info_text += 'Caption: -\n'
+      info_text += 'Keywords: '
       for key in key_set:
-        self.keywords_win.insert(tki.END, key + '\n')
+        info_text += key + ','
+
+      self.info_text.delete(1.0, tki.END)
+      self.info_text.insert(tki.END, info_text)
 
     #lch.quick_look_file(files, mode='-p')
     #if len(files) == 1:
