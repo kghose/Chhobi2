@@ -26,7 +26,7 @@ class PersistentExifTool():
     self.exiftool_process.communicate(input)
     self.running = False
 
-  def execute(self, query, expecting_response=True):
+  def execute(self, query, expecting_response=True, expecting_binary=False):
     """Query is a list of exiftool commands. We add the -execute in the end."""
     query += '\n-execute\n'
     logger.debug(query)
@@ -38,12 +38,15 @@ class PersistentExifTool():
     while not output[-32:].strip().endswith(response_end):
       output += os.read(fd, 4096)
     if expecting_response:
-      logging.debug(output)
-      stripped = output.strip()[:-len(response_end)]
-      if len(stripped):
-        return json.loads(stripped.decode("utf-8"))
+      if expecting_binary:
+        return output[:-len(response_end)]
       else:
-        return []
+        logging.debug(output)
+        stripped = output.strip()[:-len(response_end)]
+        if len(stripped):
+          return json.loads(stripped.decode("utf-8"))
+        else:
+          return []
 
   def get_metadata_for_files(self, file_list):
     """Get standard metadata from the files."""
@@ -73,6 +76,15 @@ class PersistentExifTool():
       for keyword in meta_data['keywords']:
         query += '-keywords{:s}={:s}\n'.format(keyword[0],keyword[1])
     self.execute(query, expecting_response=False)
+
+  def get_preview_image(self, file):
+    """Return a binary string corresponding to the preview image."""
+    query = '-PreviewImage\n -b\n'
+    query += file + '\n'
+    return self.execute(query, expecting_binary=True)
+
+
+
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.DEBUG)
