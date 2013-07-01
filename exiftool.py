@@ -61,8 +61,8 @@ class PersistentExifTool(object):
     return meta_data
 
   def set_metadata_for_files(self, file_list, meta_data):
-    """Set selected metadata for the files. If keywords are present they are passed in as tuples containing the
-     keyword and a plus or minus sign indicating if they are to be added or removed
+    """Set selected metadata for the files. If keywords are present they are passed in as a list of tuples
+     containing a plus or minus sign indicating if the keyword are to be added or removed and the keyword itself
     """
     query = '\n'
     for file in file_list:
