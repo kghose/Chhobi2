@@ -1,16 +1,12 @@
-"""The GUI consists of XXX  write we've finalized this stuff
+"""The GUI consists of four panel
 -----------------------
 |                     |
 |         A           |
 |                     |
 |---------------------|
-|                     |
-|         B           |
-|                     |
-|---------------------|
-|                     |
-|         C           |
-|                     |
+|         |           |
+|    B    |     C     |
+|         |           |
 |---------------------|
 |         D           |
 -----------------------
@@ -49,6 +45,7 @@ class App(object):
   def __init__(self):
     self.root = tki.Tk()
     self.root.wm_title('Chhobi2')
+    self.load_prefs()
     self.setup_window()
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
@@ -62,8 +59,11 @@ class App(object):
     self.etool.close()
     self.root.quit() #Allow the rest of the quit process to continue
 
+  def load_prefs(self):
+    self.photo_root = './'
+
   def setup_window(self):
-    self.dir_win = dirb.DirBrowse(self.root, dir_root='./')#'/Users/kghose/Pictures')
+    self.dir_win = dirb.DirBrowse(self.root, dir_root=self.photo_root)
     self.dir_win.pack(side='top', expand=True, fill='both')
     self.dir_win.treeview.bind("<<TreeviewSelect>>", self.selection_changed)
 
@@ -88,7 +88,6 @@ class App(object):
     if self.cmd_state == 'Idle':
       if chr in self.command_prefix:
         self.cmd_state = 'Command'
-        #return 'break'
       else:
         self.propagate_key_to_browser(event)
         return 'break'
@@ -96,7 +95,6 @@ class App(object):
       if event.keysym == 'Return':
         self.command_execute(event)
         return 'break'
-    #return event #Process normally
 
   def propagate_key_to_browser(self, event):
     """When we are in idle mode we like to mirror some key presses in the command window to the file browser."""
@@ -143,12 +141,32 @@ class App(object):
     #  lch.reveal_file_in_finder(file_name=files[0])
 
   def command_execute(self, event):
-    #self.dir_win.key_command(self.cmd_win.get(1.0, tki.END).strip())
+    command = self.cmd_win.get(1.0, tki.END)
+    files = self.dir_win.file_selection()
+    if command[0] == 'd':
+      self.set_new_photo_root(command[2:].strip())
+    elif command[0] == 'c':
+      caption = command[2:].strip()
+      self.etool.set_metadata_for_files(files, {'caption': caption})
+      self.selection_changed(None) #Need to refresh stuff
+    elif command[:2] == 'k ':
+      keyword = command[2:].strip()
+      self.etool.set_metadata_for_files(files, {'keywords': [('+',keyword)]})
+      self.selection_changed(None) #Need to refresh stuff
+    elif command[:2] == 'k-':
+      keyword = command[3:].strip()
+      self.etool.set_metadata_for_files(files, {'keywords': [('-',keyword)]})
+      self.selection_changed(None) #Need to refresh stuff
+
+
     self.cmd_win.delete(1.0, tki.END)
-    self.search_execute(event)
     self.cmd_state = 'Idle'
 
     #from IPython import embed; embed()
+
+  def set_new_photo_root(self, new_root):
+    self.photo_root = new_root
+    self.dir_win.set_dir_root(self.photo_root)
 
   def search_execute(self, event):
     self.dir_win.virtual_flat([
