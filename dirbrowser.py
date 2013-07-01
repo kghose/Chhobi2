@@ -4,13 +4,44 @@ By mmgp (http://stackoverflow.com/users/1832154/mmgp)
 """
 import os, sys, Tkinter as tki, ttk
 
-class DirBrowse(tki.Frame):
+#class DirBrowse(tki.Frame):
+class DirBrowse():
   def __init__(self, parent, dir_root='./', **options):
-    tki.Frame.__init__(self, parent, **options)
-    self.treeview = ttk.Treeview(columns=("fullpath", "type"),show='tree',displaycolumns=())
-    self.treeview.pack(fill='both', expand=True)
+    #tki.Frame.__init__(self, parent, **options)
+    self.treeview = ttk.Treeview(parent, columns=("fullpath", "type"),show='tree',displaycolumns=())
+    #self.treeview.pack(fill='both', expand=True)
     self.set_dir_root(dir_root)
     self.treeview.bind('<<TreeviewOpen>>', self.update_tree)
+    #self.treeview.bind('<<TreeviewSelect>>', self.auto_expand)
+    #self.set_auto_open(True)
+
+  def pack(self, **options):
+    self.treeview.pack(**options)
+
+  def set_auto_open(self, auto_open=False):
+    """auto_open means that when we select a single node, if that node has children, we select the first child
+    and so on, until we hit a leaf.."""
+    if not hasattr(self, 'auto_open'):
+      self.auto_open = auto_open
+    if self.auto_open:
+      self.treeview.bind('<<TreeviewSelect>>', self.auto_expand, add='+')
+    else:
+      self.treeview.unbind('<<TreeviewSelect>>', self.auto_expand)
+    print self.auto_open
+
+  def auto_expand(self, event):
+    """We call this when we change selection. If our current item is a leaf node we simply return. If it has children, we select the first child..."""
+    self.update_tree(event)
+    print 'Boom!'
+    tv = self.treeview
+    node = tv.focus()
+    children = tv.get_children(node)
+    if len(children) == 0:
+      return
+    else:
+      tv.focus(children[0])
+      tv.selection_set(children[0])
+
 
   def set_initial_focus(self):
     tv = self.treeview
