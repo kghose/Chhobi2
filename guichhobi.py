@@ -27,10 +27,7 @@ Starting the program with the -d option will print debugger messages to the cons
 Commands:
 
 d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
-n                - go to next entry in file browser
-p                - go to previous entry in file browser
->                - if directory, enter. If image, show in preview
-<                - go to parent directory
+[arrow keys]     - navigate in file browser (even when in command window)
 c <text>         - set this text as picture caption. Newline is indicated by \n
 k <keyword>      - add this keyword to the current file/selection
 k- <keyword>     - remove this keyword from the current file/selection
@@ -55,6 +52,10 @@ class App(object):
     self.setup_window()
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
+    self.cmd_state = 'Idle'
+    self.command_prefix = ['d', 'c', 'k', 's', 'a', 'x', 'v']
+    #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes
+    #to the browser window
 
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool."""
@@ -79,7 +80,29 @@ class App(object):
     self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3)
     self.cmd_win['font'] = ('consolas', '12')
     self.cmd_win.pack(side='top', expand=True, fill='both')
-    self.cmd_win.bind('<Return>', self.command_execute)
+    #self.cmd_win.bind('<Return>', self.command_execute)
+    self.cmd_win.bind("<Key>", self.cmd_key_trap)
+
+  def cmd_key_trap(self, event):
+    chr = event.char
+    if self.cmd_state == 'Idle':
+      if chr in self.command_prefix:
+        self.cmd_state = 'Command'
+        #return 'break'
+      else:
+        self.propagate_key_to_browser(event)
+        return 'break'
+    else:
+      if event.keysym == 'Return':
+        self.command_execute(event)
+        return 'break'
+    #return event #Process normally
+
+  def propagate_key_to_browser(self, event):
+    """When we are in idle mode we like to mirror some key presses in the command window to the file browser."""
+    self.dir_win.treeview.focus_set()
+    self.dir_win.treeview.event_generate('<Key>', keycode=event.keycode)
+    self.cmd_win.focus_set()
 
   def selection_changed(self, event):
     files = self.dir_win.file_selection()
@@ -120,15 +143,12 @@ class App(object):
     #  lch.reveal_file_in_finder(file_name=files[0])
 
   def command_execute(self, event):
-    """
-    dw.selection_set(dw.next(dw.selection()))
-    ."""
-    self.dir_win.key_command(self.cmd_win.get(1.0, tki.END).strip())
+    #self.dir_win.key_command(self.cmd_win.get(1.0, tki.END).strip())
     self.cmd_win.delete(1.0, tki.END)
+    self.search_execute(event)
+    self.cmd_state = 'Idle'
 
     #from IPython import embed; embed()
-
-
 
   def search_execute(self, event):
     self.dir_win.virtual_flat([
