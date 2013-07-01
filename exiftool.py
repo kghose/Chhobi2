@@ -80,6 +80,11 @@ class PersistentExifTool(object):
     query += file + '\n'
     return self.execute(query, expecting_binary=True)
 
+  def get_thumbnail_image(self, file):
+    """Return a binary string corresponding to the preview image."""
+    query = '-ThumbnailImage\n -b\n'
+    query += file + '\n'
+    return self.execute(query, expecting_binary=True)
 
 
 
