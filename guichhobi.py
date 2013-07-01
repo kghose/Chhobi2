@@ -38,7 +38,7 @@ v                - toggle virtual listing (selected files)
 """
 import logging
 logger = logging.getLogger(__name__)
-import Tkinter as tki, threading, Queue, argparse, time, Image, ImageTk
+import Tkinter as tki, threading, Queue, argparse, time, Image, ImageTk, ConfigParser
 import libchhobi as lch, dirbrowser as dirb, exiftool
 from cStringIO import StringIO
 
@@ -57,32 +57,41 @@ class App(object):
     #to the browser window
 
   def cleanup_on_exit(self):
-    """Needed to shutdown the exiftool."""
+    """Needed to shutdown the exiftool and save configuration."""
     self.etool.close()
+    with open('chhobi2.cfg', 'wb') as configfile:
+      self.config.write(configfile)
     self.root.quit() #Allow the rest of the quit process to continue
 
   def load_prefs(self):
-    self.photo_root = './'
+    self.config_default = {
+        'root': './'
+    }
+    self.config = ConfigParser.ConfigParser(self.config_default)
+    self.config.read('chhobi2.cfg')
 
   def setup_window(self):
-    self.dir_win = dirb.DirBrowse(self.root, dir_root=self.photo_root)
+    self.dir_win = dirb.DirBrowse(self.root, dir_root=self.config.get('DEFAULT','root'), relief='raised',bd=2)
     self.dir_win.pack(side='top', expand=True, fill='both')
-    self.dir_win.treeview.bind("<<TreeviewSelect>>", self.selection_changed)
+    self.dir_win.treeview.bind("<<TreeviewSelect>>", self.selection_changed, add='+')
 
     fr = tki.Frame(self.root)
-    fr.pack(side='top', expand=True, fill='both')
+    fr.pack(side='top')#, expand=True, fill='x')
 
-    self.thumbnail_label = tki.Label(fr)
-    self.thumbnail_label.pack(side='left')
+    #A trick to force the thumbnail_label to a particular size
+    f = tki.Frame(fr, height=150, width=150, relief='raised',bd=2)
+    f.pack_propagate(0) # don't shrink
+    f.pack(side='left')
+    self.thumbnail_label = tki.Label(f)
+    self.thumbnail_label.pack()
 
-    self.info_text = tki.Text(fr, width=40, height=10)
+    self.info_text = tki.Text(fr, width=40, height=12)
     self.info_text['font'] = ('consolas', '10')
-    self.info_text.pack(side='left', expand=True, fill='both')
+    self.info_text.pack(side='left', fill='x')
 
-    self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3)
+    self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3, foreground='black', background='gray')
     self.cmd_win['font'] = ('consolas', '12')
-    self.cmd_win.pack(side='top', expand=True, fill='both')
-    #self.cmd_win.bind('<Return>', self.command_execute)
+    self.cmd_win.pack(side='top', fill='x')
     self.cmd_win.bind("<Key>", self.cmd_key_trap)
 
   def cmd_key_trap(self, event):
@@ -100,7 +109,6 @@ class App(object):
       elif event.keysym == 'Escape':
         self.command_cancel()
 
-
   def propagate_key_to_browser(self, event):
     """When we are in idle mode we like to mirror some key presses in the command window to the file browser."""
     self.dir_win.treeview.focus_set()
@@ -112,7 +120,7 @@ class App(object):
     logger.debug(files)
 
     if len(files):
-      thumbnail = Image.open(StringIO(self.etool.get_preview_image(files[0])))
+      thumbnail = Image.open(StringIO(self.etool.get_thumbnail_image(files[0])))
       photo = ImageTk.PhotoImage(thumbnail)
       self.thumbnail_label.config(image=photo)
       self.thumbnail_label.image = photo #Keep a reference
@@ -149,7 +157,9 @@ class App(object):
     command = self.cmd_win.get(1.0, tki.END)
     files = self.dir_win.file_selection()
     if command[0] == 'd':
-      self.set_new_photo_root(command[2:].strip())
+      dir_root = command[2:].strip()
+      self.config.set('DEFAULT', 'root', dir_root)
+      self.set_new_photo_root(dir_root)
     elif command[0] == 'c':
       caption = command[2:].strip()
       self.etool.set_metadata_for_files(files, {'caption': caption})
@@ -162,7 +172,8 @@ class App(object):
       keyword = command[3:].strip()
       self.etool.set_metadata_for_files(files, {'keywords': [('-',keyword)]})
       self.selection_changed(None) #Need to refresh stuff
-
+    elif command[0] == 's':
+      self.search_execute(command[2:].strip())
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
 
@@ -176,12 +187,9 @@ class App(object):
     self.photo_root = new_root
     self.dir_win.set_dir_root(self.photo_root)
 
-  def search_execute(self, event):
-    self.dir_win.virtual_flat([
-      '/Users/kghose/Pictures/2011/2011-10-08/DSC_4934.JPG',
-      '/Users/kghose/Pictures/2009/2009-09-25/DSC_1808.JPG',
-      '/Users/kghose/Pictures/2007/2007-06-14/IMG_5018a.JPG',
-    ])
+  def search_execute(self, query_str):
+    files = lch.execute_query(query_str, root = self.config.get('DEFAULT', 'root'))
+    self.dir_win.virtual_flat(files)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
