@@ -22,9 +22,11 @@ Starting the program with the -d option will print debugger messages to the cons
 
 Commands:
 
+Esc              - cancel current command
+Enter            - execute current command
 d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
 [arrow keys]     - navigate in file browser (even when in command window)
-c <text>         - set this text as picture caption. Newline is indicated by \n
+c <text>         - set this text as picture caption.
 k <keyword>      - add this keyword to the current file/selection
 k- <keyword>     - remove this keyword from the current file/selection
 s <query string> - perform this mdfinder query and set the file browser to this virtual listing
@@ -95,6 +97,9 @@ class App(object):
       if event.keysym == 'Return':
         self.command_execute(event)
         return 'break'
+      elif event.keysym == 'Escape':
+        self.command_cancel()
+
 
   def propagate_key_to_browser(self, event):
     """When we are in idle mode we like to mirror some key presses in the command window to the file browser."""
@@ -158,11 +163,14 @@ class App(object):
       self.etool.set_metadata_for_files(files, {'keywords': [('-',keyword)]})
       self.selection_changed(None) #Need to refresh stuff
 
-
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
 
     #from IPython import embed; embed()
+
+  def command_cancel(self):
+    self.cmd_win.delete(1.0, tki.END)
+    self.cmd_state = 'Idle'
 
   def set_new_photo_root(self, new_root):
     self.photo_root = new_root
