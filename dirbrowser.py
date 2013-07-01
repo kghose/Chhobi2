@@ -15,7 +15,6 @@ class DirBrowse(tki.Frame):
   def set_initial_focus(self):
     tv = self.treeview
     node = tv.get_children()[0]
-    print node
     tv.focus(node)
     tv.selection_set(node)
 
