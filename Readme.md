@@ -1,6 +1,6 @@
-Commandline Photo Organizer for Mac. Because photographers can be geeks too.
+Minimal Photo Organizer for Mac. Because photographers can be geeks too.
 
-Chhobi is a Frankenstein's monster of Python and native Mac OS X components. Chhobi runs in a terminal window with no flashy graphics or UI. You enter commands into the
+Chhobi is a Frankenstein's monster of Python and native Mac OS X components.
 
 
 
@@ -10,6 +10,32 @@ I decided, as an experiment, to come up with a program that organizes photo exif
 * Changing EXIF data like keywords and captions
 * Organizing photos into groups
 * Resizing photos
+
+
+TODO
+====
+* Export queries as smart folders
+* Indicate when preview thumbnail is not available - autogenerate one
+* Command history
+* Commands to change appearance
+
+
+Resources
+=========
+
+RaqQuery format:
+http://developer.apple.com/library/mac/#documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html#//apple_ref/doc/uid/TP40001849-CJBEJBHH
+
+
+
+
+
+Programming notes
+=================
+Integrating with finder
+-----------------------
+My initial idea was to have no GUI elements at all, instead using the finder to select and view the images. In a preliminary version I had a thread that polled the finder for its current selection periodically and used that to drive the interface. This however had a major drawbacks - the applescript (run as a subprocess through oascript) that I used loaded the Finder and the load increased with the size of the selection. The GUI remained responsive since I used a spearate thread for the polling, but my fans started going off and Finder would start consuming CPU when the application was just sitting there. I decided instead to build in a tree view into the application and use Finder for previews only instead.
+
 
 
 
