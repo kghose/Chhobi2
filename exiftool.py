@@ -36,7 +36,7 @@ class PersistentExifTool(object):
       output += os.read(fd, 4096)
     if expecting_response:
       if expecting_binary:
-        return output[:-len(response_end)]
+        return output.rstrip()[:-len(response_end)]
       else:
         logging.debug(output)
         stripped = output.strip()[:-len(response_end)]
