@@ -1,4 +1,4 @@
-"""The GUI consists of four panel
+"""The GUI consists of four panels
 -----------------------
 |                     |
 |         A           |
@@ -26,6 +26,10 @@ Esc              - cancel current command
 Enter            - execute current command
 [arrow keys]     - navigate in file browser (even when in command window). Once you start a command your arrow keys
                    now work as normal cursor keys in the command window, as usual.
+[right cursor]   - If an image file is selected in file browser, will open the file in a quick view window
+
+After typing the following commands you need to hit enter to execute
+r                - Reveal the current files/folders in finder
 d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
 c <text>         - set this text as picture caption.
 k <keyword>      - add this keyword to the current file/selection
@@ -53,7 +57,7 @@ class App(object):
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
     self.cmd_state = 'Idle'
-    self.command_prefix = ['d', 'c', 'k', 's', 'a', 'x', 'v']
+    self.command_prefix = ['d', 'c', 'k', 's', 'a', 'x', 'v', 'r']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes
     #to the browser window
 
@@ -75,6 +79,7 @@ class App(object):
     self.dir_win = dirb.DirBrowse(self.root, dir_root=self.config.get('DEFAULT','root'), relief='raised',bd=2)
     self.dir_win.pack(side='top', expand=True, fill='both')
     self.dir_win.treeview.bind("<<TreeviewSelect>>", self.selection_changed, add='+')
+    self.dir_win.treeview.bind('<<TreeviewOpen>>', self.open_external, add='+')
 
     fr = tki.Frame(self.root)
     fr.pack(side='top')#, expand=True, fill='x')
@@ -196,10 +201,10 @@ class App(object):
       self.selection_changed(None) #Need to refresh stuff
     elif command[0] == 's':
       self.search_execute(command[2:].strip())
+    elif command[0] == 'r':
+      self.reveal_in_finder()
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
-
-    #from IPython import embed; embed()
 
   def command_cancel(self):
     self.cmd_win.delete(1.0, tki.END)
@@ -212,6 +217,14 @@ class App(object):
   def search_execute(self, query_str):
     files = lch.execute_query(query_str, root = self.config.get('DEFAULT', 'root'))
     self.dir_win.virtual_flat(files)
+
+  def open_external(self, event):
+    files = self.dir_win.file_selection()#Only returns files
+    if len(files): lch.quick_look_file(files)
+
+  def reveal_in_finder(self):
+    files_folders = self.dir_win.all_selection()#Returns both files and folders
+    if len(files_folders): lch.reveal_file_in_finder(files_folders)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
