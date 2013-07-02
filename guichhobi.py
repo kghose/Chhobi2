@@ -145,15 +145,27 @@ class App(object):
     if len(exiv_data) == 1:
       for k in ['Model', 'LensID', 'FocalLength', 'ISO', 'ShutterSpeed', 'FNumber']:
         info_text += k + ': ' + str(exiv_data[0][k]) + '\n'
+    else:
+      info_text += '(Showing common info)'
     return info_text
+
+  def get_thumbnail(self, file):
+    im_data = self.etool.get_thumbnail_image(file)
+    if len(im_data):
+      thumbnail = Image.open(StringIO(im_data))
+    else:
+      logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file))
+      #Slow process of generating thumbnail on the fly
+      thumbnail = Image.open(file)
+      thumbnail.thumbnail((150,150))
+    return ImageTk.PhotoImage(thumbnail)
 
   def selection_changed(self, event):
     files = self.dir_win.file_selection()
     logger.debug(files)
 
     if len(files):
-      thumbnail = Image.open(StringIO(self.etool.get_thumbnail_image(files[0])))
-      photo = ImageTk.PhotoImage(thumbnail)
+      photo = self.get_thumbnail(files[0])
       self.thumbnail_label.config(image=photo)
       self.thumbnail_label.image = photo #Keep a reference
 
