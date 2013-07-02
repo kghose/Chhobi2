@@ -85,28 +85,3 @@ class PersistentExifTool(object):
     query = '-ThumbnailImage\n -b\n'
     query += file + '\n'
     return self.execute(query, expecting_binary=True)
-
-
-
-if __name__ == "__main__":
-  logging.basicConfig(level=logging.DEBUG)
-  # fl1 = ['/Users/kghose/Pictures/2011/2011-10-08/DSC_4934.JPG',
-  # '/Users/kghose/Pictures/2009/2009-09-25/DSC_1808.JPG',
-  # '/Users/kghose/Pictures/2007/2007-06-14/IMG_5018a.JPG',
-  # '/Users/kghose/Pictures/2007/2007-06-14/IMG_5013a.JPG']
-  #
-  fl = ['TestData/2013-04-26/DSC_2308.JPG',
-        'TestData/2013-04-26/DSC_2309.JPG',
-        'TestData/2013-04-26/DSC_2310.JPG',
-        'TestData/2013-04-26/DSC_2311.JPG',
-        'TestData/2013-04-26/DSC_2312.JPG']
-  a = PersistentExifTool()
-  md =  a.get_metadata_for_files(fl)
-  for m in md:
-    print m
-
-  meta_data = {
-    'caption': 'Test successful',
-    'keywords': [('-','test image')]
-  }
-  a.set_metadata_for_files(fl,meta_data)
