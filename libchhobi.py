@@ -63,17 +63,8 @@ def create_smart_folder(pl,raw_query, root='kMDQueryScopeComputer', smart_folder
   if os.path.exists(smart_folder_name): os.remove(smart_folder_name)
   plistlib.writePlist(pl, smart_folder_name)
 
-def reveal_file_in_finder(file_name=''):
-  scpt = 'tell application "Finder" to reveal alias (POSIX file "{:s}")'.format(file_name)
-  p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-  stdout, stderr = p.communicate(scpt)
-  if p.returncode:#Something went wrong
-    logger.error(stderr)
-  return stdout.split('\r')[:-1] #The last item is simply a new line
-
-def query_construction_dictionary():
-  """."""
-
+def reveal_file_in_finder(files=[]):
+  Popen(['open', '-R'] + files)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__)
