@@ -35,11 +35,11 @@ c <text>         - set this text as picture caption.
 k <keyword>      - add this keyword to the current file/selection
 k- <keyword>     - remove this keyword from the current file/selection
 s <query string> - perform this mdfinder query and set the file browser to this virtual listing
-a                - add this file to selection
-x                - remove this file from selection
-v                - toggle virtual listing (selected files)
-
-
+a                - add selected files to pile
+x                - remove selected files from pile (if they exist in pile)
+p                - show pile
+z AxB            - resize all images in pile to fit within AxB pixels, put them in a temporary directory and
+                   reveal the directory
 """
 import logging
 logger = logging.getLogger(__name__)
@@ -57,9 +57,9 @@ class App(object):
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
     self.cmd_state = 'Idle'
-    self.command_prefix = ['d', 'c', 'k', 's', 'a', 'x', 'v', 'r']
-    #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes
-    #to the browser window
+    self.command_prefix = ['r', 'd', 'c', 'k', 's', 'a', 'x', 'p']
+    #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
+    self.pile = set([]) #We temporarily 'hold' files here
 
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool and save configuration."""
@@ -203,6 +203,12 @@ class App(object):
       self.search_execute(command[2:].strip())
     elif command[0] == 'r':
       self.reveal_in_finder()
+    elif command[0] == 'a':
+      self.add_selected_to_pile()
+    elif command[0] == 'x':
+      self.remove_selected_from_pile()
+    elif command[0] == 'p':
+      self.show_pile()
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
 
@@ -225,6 +231,20 @@ class App(object):
   def reveal_in_finder(self):
     files_folders = self.dir_win.all_selection()#Returns both files and folders
     if len(files_folders): lch.reveal_file_in_finder(files_folders)
+
+  def add_selected_to_pile(self):
+    files = self.dir_win.file_selection()#Only returns files
+    for f in files:
+      self.pile.add(f)
+
+  def remove_selected_from_pile(self):
+    files = self.dir_win.file_selection()#Only returns files
+    for f in files:
+      self.pile.discard(f)
+
+  def show_pile(self):
+    self.dir_win.virtual_flat(self.pile, title='Showing Pile. Select this to go back')
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
