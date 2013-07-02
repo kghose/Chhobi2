@@ -7,7 +7,7 @@ c) Create smartfolders based on search criteria
 
 import logging
 logger = logging.getLogger(__name__)
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, list2cmdline
 import os, plistlib, argparse, re
 
 #The regexp for substituting mdfind syntax into our simplified syntax
@@ -17,7 +17,8 @@ query_re = re.compile(r'(\w*?) *(?:==|!=|<|>|<=|>=)(?:\[c\] *|\[d\]| *)')
 #Maps the human readable query item into a mdfinder item
 query_map = {
   'k': 'kMDItemKeywords',    #keywords
-  'c': 'kMDItemDescription' #caption
+  'c': 'kMDItemDescription', #caption
+  'd': 'kMDItemContentCreationDate'
 }
 
 def query_to_rawquery(query):
@@ -36,7 +37,7 @@ def execute_query(query, root = './'):
 
 def execute(prog_args, blocking=True):
   """If blocking is True, use wait to get result. Otherwise simply return with no error checking etc etc."""
-  logger.debug(prog_args)
+  logger.debug(list2cmdline(prog_args))
   p = Popen(prog_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
   if blocking:
     if p.wait():
