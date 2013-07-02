@@ -24,8 +24,9 @@ Commands:
 
 Esc              - cancel current command
 Enter            - execute current command
+[arrow keys]     - navigate in file browser (even when in command window). Once you start a command your arrow keys
+                   now work as normal cursor keys in the command window, as usual.
 d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
-[arrow keys]     - navigate in file browser (even when in command window)
 c <text>         - set this text as picture caption.
 k <keyword>      - add this keyword to the current file/selection
 k- <keyword>     - remove this keyword from the current file/selection
@@ -115,6 +116,37 @@ class App(object):
     self.dir_win.treeview.event_generate('<Key>', keycode=event.keycode)
     self.cmd_win.focus_set()
 
+  def formatted_metadata_string(self, exiv_data):
+    cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
+    key_set = set([ky for ky in exiv_data[0].get('Keywords', [])])
+
+    logger.debug(cap_set)
+    logger.debug(key_set)
+
+    for n in range(1,len(exiv_data)):
+      cap_set &= set([exiv_data[n].get('Caption-Abstract', '')])
+      key_set &= set([ky for ky in exiv_data[n].get('Keywords', [])])
+
+    info_text = ''
+
+    if len(cap_set):
+      info_text += 'Caption: {:s}\n'.format(cap_set.pop())
+    else:
+      info_text += 'Caption: -\n'
+    info_text += 'Keywords: '
+    if len(key_set):
+      info_text += key_set.pop()
+      for key in key_set:
+        info_text += ',' + key
+      info_text += '\n'
+    else:
+      info_text += '-\n'
+
+    if len(exiv_data) == 1:
+      for k in ['Model', 'LensID', 'FocalLength', 'ISO', 'ShutterSpeed', 'FNumber']:
+        info_text += k + ': ' + str(exiv_data[0][k]) + '\n'
+    return info_text
+
   def selection_changed(self, event):
     files = self.dir_win.file_selection()
     logger.debug(files)
@@ -126,32 +158,9 @@ class App(object):
       self.thumbnail_label.image = photo #Keep a reference
 
       exiv_data = self.etool.get_metadata_for_files(files)
-      cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
-      key_set = set([ky for ky in exiv_data[0].get('Keywords', [])])
-
-      logger.debug(cap_set)
-      logger.debug(key_set)
-
-      for n in range(1,len(exiv_data)):
-        cap_set &= set([exiv_data[n].get('Caption-Abstract', '')])
-        key_set &= set([ky for ky in exiv_data[n].get('Keywords', [])])
-
-      info_text = ''
-
-      if len(cap_set):
-        info_text += 'Caption: {:s}\n'.format(cap_set.pop())
-      else:
-        info_text += 'Caption: -\n'
-      info_text += 'Keywords: '
-      for key in key_set:
-        info_text += key + ','
-
+      info_text = self.formatted_metadata_string(exiv_data)
       self.info_text.delete(1.0, tki.END)
       self.info_text.insert(tki.END, info_text)
-
-    #lch.quick_look_file(files, mode='-p')
-    #if len(files) == 1:
-    #  lch.reveal_file_in_finder(file_name=files[0])
 
   def command_execute(self, event):
     command = self.cmd_win.get(1.0, tki.END)
