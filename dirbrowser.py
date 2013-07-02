@@ -6,14 +6,17 @@ import os, sys, Tkinter as tki, ttk
 
 #class DirBrowse(tki.Frame):
 class DirBrowse():
+  """The item data consist of fullpath and type.
+  The iids are set as the POSIX path and therefore can be used directly.
+  The exceptions are:
+   * The root of a virtual listing which has a ptype = 'back to root' and
+   * Dummy leaves which have not been opened yet (required to show the expanding arrow) which have a
+     ptype = 'dummy'
+  """
   def __init__(self, parent, dir_root='./', **options):
-    #tki.Frame.__init__(self, parent, **options)
     self.treeview = ttk.Treeview(parent, columns=("fullpath", "type"),show='tree',displaycolumns=())
-    #self.treeview.pack(fill='both', expand=True)
     self.set_dir_root(dir_root)
     self.treeview.bind('<<TreeviewOpen>>', self.update_tree)
-    #self.treeview.bind('<<TreeviewSelect>>', self.auto_expand)
-    #self.set_auto_open(True)
 
   def pack(self, **options):
     self.treeview.pack(**options)
@@ -80,11 +83,12 @@ class DirBrowse():
         P = p.upper()
         if not P.endswith('JPG') and not P.endswith('TIFF') and not P.endswith('GIF') and not P.endswith('PNG'):
           continue
+        ptype = 'file'
 
       fname = os.path.split(p)[1]
       oid = self.treeview.insert(node, 'end', text=fname, values=[p, ptype], iid=p)
       if ptype == 'directory':
-        self.treeview.insert(oid, 0, text='dummy')
+        self.treeview.insert(oid, 0, text='dummy', values=['dummy', 'dummy'])
 
   def virtual_flat(self, files):
     # Set the contents to a flat listing of files. Useful for 'virtual' folders we create on the fly
@@ -92,7 +96,7 @@ class DirBrowse():
     ins = self.treeview.insert
     #Special first node, instructs us to go back to the real listing
     ptype = 'back to root'
-    ins('','end', text='Back to real listing', values=['real listing', ptype], iid='backtoroot')
+    ins('','end', text='Back to real listing', values=['real listing', ptype])
     ptype = None
     for file in files:
       fname = os.path.split(file)[1]
@@ -103,5 +107,12 @@ class DirBrowse():
     self.fill_tree(self.treeview.focus())
 
   def file_selection(self):
+    tv = self.treeview
     files = self.treeview.selection()
-    return [fi for fi in files if os.path.isfile(fi)]
+    return [fi for fi in files if tv.item(fi)['values'][1]=='file']  #if os.path.isfile(fi)]
+
+  def all_selection(self):
+    #from IPython import embed; embed()
+    tv = self.treeview
+    files = self.treeview.selection()
+    return [fi for fi in files if (tv.item(fi)['values'][1]!='back to root') and (tv.item(fi)['values'][1]!='dummy')] #Only exclude the virtual listing head
