@@ -86,8 +86,8 @@ class App(object):
     self.thumbnail_label = tki.Label(f)
     self.thumbnail_label.pack()
 
-    self.info_text = tki.Text(fr, width=40, height=12)
-    self.info_text['font'] = ('consolas', '10')
+    self.info_text = tki.Text(fr, width=40, height=10)
+    self.info_text['font'] = ('courier', '11')
     self.info_text.pack(side='left', fill='x')
 
     self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3, foreground='black', background='gray')
@@ -130,10 +130,10 @@ class App(object):
     info_text = ''
 
     if len(cap_set):
-      info_text += 'Caption: {:s}\n'.format(cap_set.pop())
+      info_text += 'Caption       : {:s}\n'.format(cap_set.pop())
     else:
-      info_text += 'Caption: -\n'
-    info_text += 'Keywords: '
+      info_text += 'Caption       : -\n'
+    info_text +=   'Keywords      : '
     if len(key_set):
       info_text += key_set.pop()
       for key in key_set:
@@ -143,8 +143,9 @@ class App(object):
       info_text += '-\n'
 
     if len(exiv_data) == 1:
-      for k in ['Model', 'LensID', 'FocalLength', 'ISO', 'ShutterSpeed', 'FNumber']:
-        info_text += k + ': ' + str(exiv_data[0][k]) + '\n'
+      for k,v in exiv_data[0].iteritems(): #in ['Model', 'LensID', 'FocalLength', 'ISO', 'ShutterSpeed', 'FNumber']:
+        if k not in ['Caption-Abstract','Keywords', 'SourceFile']:
+          info_text += k.ljust(14) + ': ' + str(v) + '\n'
     else:
       info_text += '(Showing common info)'
     return info_text
