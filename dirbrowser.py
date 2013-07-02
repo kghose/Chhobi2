@@ -90,14 +90,14 @@ class DirBrowse():
       if ptype == 'directory':
         self.treeview.insert(oid, 0, text='dummy', values=['dummy', 'dummy'])
 
-  def virtual_flat(self, files):
+  def virtual_flat(self, files, title='Back to real listing'):
     # Set the contents to a flat listing of files. Useful for 'virtual' folders we create on the fly
     map(self.treeview.delete, self.treeview.get_children()) #Delete the original
     ins = self.treeview.insert
     #Special first node, instructs us to go back to the real listing
     ptype = 'back to root'
-    ins('','end', text='Back to real listing', values=['real listing', ptype])
-    ptype = None
+    ins('','end', text=title, values=['real listing', ptype])
+    ptype = 'file'
     for file in files:
       fname = os.path.split(file)[1]
       ins('','end', text=file, values=[file, ptype], iid=file)
