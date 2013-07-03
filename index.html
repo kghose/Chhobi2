@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Chhobi2 by kghose</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Chhobi2</h1>
+        <h2>A pseudo commandline interface for organizing photos. Uses Python + Tkinter + Exiftool + native Mac OS X utilties</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/kghose/Chhobi2/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/kghose/Chhobi2/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/kghose/Chhobi2" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <p>Minimal Photo Organizer for Mac. Because photographers can be geeks too.</p>
+
+<p>Chhobi is a pseudo commandline photo organizer for Mac. It allows you to browse your photos and view/change the metadata using just the keyboard. It allows you to search for photos using any metadata that Mac OS indexes.</p>
+
+<p>Chhobi is fashioned after the Unix/Linux GUIs of old that were simply wrappers around powerful commandline tools. The GUI is created using Tkinter, <a href="http://www.sno.phy.queensu.ca/%7Ephil/exiftool/exiftool_pod.html">exiftool</a> is the backend that reads/writes metadata and <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/mdfind.1.html">mdfind</a> performs the searches.</p>
+
+<p>The user manual is accessed by running the program with the -h option</p>
+
+<p>i.e. python guichhobi.py -h</p>
+
+<h1>
+<a name="rationale" class="anchor" href="#rationale"><span class="octicon octicon-link"></span></a>Rationale</h1>
+
+<p>I think iPhoto is bloated and any photo organizer concept I could come up with seemed to unnecessarily duplicate many standard OS functions, such as file organization and metadata searching. Several powerful commandline tools like exiftool, mdfind and convert already exist to manipulate images and image metadata. So I harked back to my Unix days and thought, why not go retro? Why not go back to the GUI as a wrapper around powerful and fast commandline tools? The use of an actual command line to perform all the actions was, of course, not strictly necessary, but if you are going retro, why not go all the way?</p>
+
+<h1>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h1>
+
+<ul>
+<li>Simple file browser to flip through images</li>
+<li>Displays basic EXIF information</li>
+<li>Displays embedded thumbnail (or generates one on the fly)</li>
+<li>Allows you to modify captions and keywords only</li>
+<li>Powerful searching via Mac OS X spotlight</li>
+</ul><h1>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h1>
+
+<p>Chhobi is made available for download in the hope that the programs may be of some use. No claim is made that the code works and is free of bugs, but I would appreciate bug reports (<a href="mailto:kaushik.ghose@gmail.com">kaushik.ghose@gmail.com</a>)</p>
+
+<p><a href="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</a></p>
+
+<pre><code>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+</code></pre>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
