@@ -87,17 +87,17 @@ class App(object):
     fr.pack(side='top')#, expand=True, fill='x')
 
     #A trick to force the thumbnail_label to a particular size
-    f = tki.Frame(fr, height=150, width=150, relief='raised',bd=2)
+    f = tki.Frame(fr, height=155, width=155, bg='black')
     f.pack_propagate(0) # don't shrink
     f.pack(side='left')
     self.thumbnail_label = tki.Label(f)
     self.thumbnail_label.pack()
 
-    self.info_text = tki.Text(fr, width=40, height=10)
+    self.info_text = tki.Text(fr, width=40, height=12, fg='white', bg='black', padx=5, pady=5)
     self.info_text['font'] = ('courier', '11')
     self.info_text.pack(side='left', fill='x')
 
-    self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3, foreground='black', background='gray')
+    self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3, fg='black', bg='white')
     self.cmd_win['font'] = ('consolas', '12')
     self.cmd_win.pack(side='top', fill='x')
     self.cmd_win.bind("<Key>", self.cmd_key_trap)
