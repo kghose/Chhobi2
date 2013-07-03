@@ -1,11 +1,19 @@
-Minimal Photo Organizer for Mac. Because photographers can be geeks too.
+Minimal Photo Organizer for Mac.
 
-Chhobi is a pseudo commandline photo organizer for Mac. It allows you to browse your photos and view/change the metadata using just the keyboard. It allows you to search for photos using any metadata that Mac OS indexes.
+![Chhobi screen shot](https://raw.github.com/kghose/Chhobi2/gh-pages/images/screenshot001.png)
 
-Chhobi is fashioned after the Unix/Linux GUIs of old that were simply wrappers around powerful commandline tools. The GUI is created using Tkinter, [exiftool][exiftool] is the backend that reads/writes metadata and [mdfind][mdfind] performs the searches.
+Because photographers can be geeks too.
 
+Chhobi is a minimal photo organizer for Mac that uses a pseudo command line interface. Chhobi allows you to browse through your photos on disk and see their metadata. You can search for photos by any metadata that Mac OS X spotlight catalogs. You can add/modify captions and keywords on photos and select photos for batch resizing.
+
+Chhobi = [Python] + [Tkinter] + [exiftool][exiftool] + [mdfind][mdfind] + [PIL][pil]
+------------------------------------------------------------------------------------
+
+[Python]: http://python.org
+[Tkinter]: http://docs.python.org/2/library/tkinter.html
 [exiftool]: http://www.sno.phy.queensu.ca/~phil/exiftool/exiftool_pod.html
 [mdfind]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/mdfind.1.html
+[pil]: http://effbot.org/zone/pil-index.htm
 
 The user manual is accessed by running the program with the -h option
 
