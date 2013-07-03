@@ -51,38 +51,5 @@ def quick_look_file(files, mode='-p'):
   cmd_args = ['qlmanage', mode] + files
   return execute(cmd_args, blocking=False)
 
-def load_smart_folder_template(smart_folder_name='chhobi2_saved_search_template.savedSearch'):
-  return plistlib.readPlist(smart_folder_name)
-
-def create_smart_folder(pl,raw_query, root='kMDQueryScopeComputer', smart_folder_name='chhobi2.savedSearch'):
-  """pl is the template plist."""
-  pl['RawQuery'] = raw_query
-  pl['RawQueryDict']['RawQuery'] = raw_query #I believe this is cosmetic (does not affect the search)
-  pl['RawQueryDict']['SearchScopes'] = [root]
-  #If the smart folder exists, we need to delete it, otherwise it won't refresh
-  if os.path.exists(smart_folder_name): os.remove(smart_folder_name)
-  plistlib.writePlist(pl, smart_folder_name)
-
 def reveal_file_in_finder(files=[]):
   Popen(['open', '-R'] + files)
-
-if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument('-d', default=False, action='store_true', help='Print debugging messages')
-  args = parser.parse_args()
-  if args.d:
-    level=logging.DEBUG
-  else:
-    level=logging.INFO
-  logging.basicConfig(level=logging.DEBUG)
-
-  #paths = get_paths_of_selected()
-  #print get_metadata(paths[0])
-  #set_caption(paths[0], 'This is a caption')
-  #quick_look_file(paths)
-  #files = find(raw_query='kMDItemKind == "JPEG image"')
-  #quick_look_file(files)
-
-  pl = load_smart_folder_template()
-  create_smart_folder(pl, raw_query='(kMDItemKeywords = "keeper") && (kMDItemFNumber > 5.0)')
-  point_to_folder()
