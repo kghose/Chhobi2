@@ -24,10 +24,31 @@ Features
 * Powerful searching via Mac OS X spotlight
 
 
+License
+=======
+Chhobi is made available for download in the hope that the programs may be of some use. No claim is made that the code works and is free of bugs, but I would appreciate bug reports (kaushik.ghose@gmail.com)
+
+http://www.gnu.org/licenses/gpl.html
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
 TODO
 ====
-* Selections/collections
-* Resize and zip collection to send via mail
+* [DONE] Selections/collections
+* [DONE] Resize and zip collection to send via mail
 * Export queries as smart folders
 * [DONE, silently generate thumbnail] Indicate when preview thumbnail is not available - autogenerate one
 * Command history
