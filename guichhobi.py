@@ -37,15 +37,17 @@ k- <keyword>     - remove this keyword from the current file/selection
 s <query string> - perform this mdfinder query and set the file browser to this virtual listing
 a                - add selected files to pile
 x                - remove selected files from pile (if they exist in pile)
+xa               - clear all images from pile
 p                - show pile
-z AxB            - resize all images in pile to fit within AxB pixels, put them in a temporary directory and
-                   reveal the directory
+z WxH            - resize all images in pile to fit within H pixels high and W pixels wide,
+                   put them in a temporary directory and reveal the directory
 """
 import logging
 logger = logging.getLogger(__name__)
-import Tkinter as tki, threading, Queue, argparse, time, Image, ImageTk, ConfigParser
+import Tkinter as tki, tempfile, argparse, Image, ImageTk, ConfigParser
 import libchhobi as lch, dirbrowser as dirb, exiftool
 from cStringIO import StringIO
+from os.path import join
 
 class App(object):
 
@@ -57,7 +59,7 @@ class App(object):
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
     self.cmd_state = 'Idle'
-    self.command_prefix = ['r', 'd', 'c', 'k', 's', 'a', 'x', 'p']
+    self.command_prefix = ['r', 'd', 'c', 'k', 's', 'a', 'x', 'p', 'z']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
     self.pile = set([]) #We temporarily 'hold' files here
 
@@ -163,7 +165,7 @@ class App(object):
       logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file))
       #Slow process of generating thumbnail on the fly
       thumbnail = Image.open(file)
-      thumbnail.thumbnail((150,150))
+      thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
     return ImageTk.PhotoImage(thumbnail)
 
   def selection_changed(self, event):
@@ -205,10 +207,14 @@ class App(object):
       self.reveal_in_finder()
     elif command[0] == 'a':
       self.add_selected_to_pile()
-    elif command[0] == 'x':
+    elif command[:2] == 'x':
       self.remove_selected_from_pile()
+    elif command[:2] == 'xa':
+      self.clear_pile()
     elif command[0] == 'p':
       self.show_pile()
+    elif command[:2] == 'z ':
+      self.resize_and_show(command[2:].strip().lower().split('x'))
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
 
@@ -242,9 +248,21 @@ class App(object):
     for f in files:
       self.pile.discard(f)
 
+  def clear_pile(self):
+    self.pile.clear()
+
   def show_pile(self):
     self.dir_win.virtual_flat(self.pile, title='Showing Pile. Select this to go back')
 
+  def resize_and_show(self, size):
+    size = (int(size[0]), int(size[1]))
+    out_dir = tempfile.mkdtemp()
+    for n,file in enumerate(self.pile):
+      outfile = join(out_dir, '{:06d}.jpg'.format(n))
+      im = Image.open(file)
+      im.thumbnail(size, Image.ANTIALIAS)
+      im.save(outfile, 'JPEG')
+    lch.reveal_file_in_finder([out_dir])
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
