@@ -12,21 +12,20 @@ import os, plistlib, argparse, re
 
 #The regexp for substituting mdfind syntax into our simplified syntax
 #http://docs.python.org/2/library/re.html
-query_re = re.compile(r'(\w*?) *(?:==|!=|<|>|<=|>=)(?:\[c\] *|\[d\]| *)')
+query_re = re.compile('(\w*?) *(==|!=|<|>|<=|>=)')
 
 #Maps the human readable query item into a mdfinder item
 query_map = {
   'k': 'kMDItemKeywords',    #keywords
   'c': 'kMDItemDescription', #caption
-  'd': 'kMDItemContentCreationDate'
+  'd': 'kMDItemContentCreationDate',
 }
 
 def query_to_rawquery(query):
   """Make substitutions to convert a human readable query into a mdfinder readable query."""
   def _match_sub(match):
-    stri = match.group()[0]
-    trailing = match.group()[1:]
-    return query_map.get(stri, stri)+trailing
+    tag = match.group(1)
+    return query_map.get(tag, tag) + match.group(2)
 
   return query_re.sub(_match_sub, query)
 
@@ -53,3 +52,9 @@ def quick_look_file(files, mode='-p'):
 
 def reveal_file_in_finder(files=[]):
   Popen(['open', '-R'] + files)
+
+if __name__ == "__main__":
+  import sys
+  logging.basicConfig(level=logging.DEBUG)
+  print sys.argv[1]
+  print query_to_rawquery(sys.argv[1])
