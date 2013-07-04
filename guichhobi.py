@@ -24,21 +24,22 @@ Commands:
 
 Esc              - cancel current command
 Enter            - execute current command
-[arrow keys]     - navigate in file browser (even when in command window). Once you start a command your arrow keys
-                   now work as normal cursor keys in the command window, as usual.
+[arrow keys]     - navigate in file browser (even when in command window). Once you start a command
+                   your arrow keys work as normal cursor keys in the command window. When in command mode
+                   up and down arrow keys step through the history
 [right cursor]   - If an image file is selected in file browser, will open the file in a quick view window
+r                - Reveal the current files/folders in finder
+a                - add selected files to pile
+x                - remove selected files from pile (if they exist in pile)
+p                - show pile
 
 After typing the following commands you need to hit enter to execute
-r                - Reveal the current files/folders in finder
 d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
 c <text>         - set this text as picture caption.
 k <keyword>      - add this keyword to the current file/selection
 k- <keyword>     - remove this keyword from the current file/selection
 s <query string> - perform this mdfinder query and set the file browser to this virtual listing
-a                - add selected files to pile
-x                - remove selected files from pile (if they exist in pile)
-xa               - clear all images from pile
-p                - show pile
+cp               - clear all images from pile
 z WxH            - resize all images in pile to fit within H pixels high and W pixels wide,
                    put them in a temporary directory and reveal the directory
 """
@@ -59,9 +60,11 @@ class App(object):
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
     self.cmd_state = 'Idle'
-    self.command_prefix = ['r', 'd', 'c', 'k', 's', 'a', 'x', 'p', 'z']
+    self.one_key_cmds = ['r', 'a', 'x', 'p']
+    self.command_prefix = ['d', 'c', 'k', 's', 'z']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
     self.pile = set([]) #We temporarily 'hold' files here
+    self.cmd_history = set([])
 
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool and save configuration."""
@@ -105,7 +108,10 @@ class App(object):
   def cmd_key_trap(self, event):
     chr = event.char
     if self.cmd_state == 'Idle':
-      if chr in self.command_prefix:
+      if chr in self.one_key_cmds:
+        self.single_key_command_execute(chr)
+        return 'break'
+      elif chr in self.command_prefix:
         self.cmd_state = 'Command'
       else:
         self.propagate_key_to_browser(event)
@@ -182,6 +188,16 @@ class App(object):
       self.info_text.delete(1.0, tki.END)
       self.info_text.insert(tki.END, info_text)
 
+  def single_key_command_execute(self, chr):
+    if chr == 'r':
+      self.reveal_in_finder()
+    elif chr == 'a':
+      self.add_selected_to_pile()
+    elif chr == 'x':
+      self.remove_selected_from_pile()
+    elif chr == 'p':
+      self.show_pile()
+
   def command_execute(self, event):
     command = self.cmd_win.get(1.0, tki.END)
     files = self.dir_win.file_selection()
@@ -189,7 +205,7 @@ class App(object):
       dir_root = command[2:].strip()
       self.config.set('DEFAULT', 'root', dir_root)
       self.set_new_photo_root(dir_root)
-    elif command[0] == 'c':
+    elif command[:2] == 'c ':
       caption = command[2:].strip()
       self.etool.set_metadata_for_files(files, {'caption': caption})
       self.selection_changed(None) #Need to refresh stuff
@@ -203,20 +219,13 @@ class App(object):
       self.selection_changed(None) #Need to refresh stuff
     elif command[0] == 's':
       self.search_execute(command[2:].strip())
-    elif command[0] == 'r':
-      self.reveal_in_finder()
-    elif command[0] == 'a':
-      self.add_selected_to_pile()
-    elif command[:2] == 'x':
-      self.remove_selected_from_pile()
-    elif command[:2] == 'xa':
+    elif command[:2] == 'cp':
       self.clear_pile()
-    elif command[0] == 'p':
-      self.show_pile()
     elif command[:2] == 'z ':
       self.resize_and_show(command[2:].strip().lower().split('x'))
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
+    self.cmd_history.add(command) #Does not distinguish between valid and invalid commands. Ok?
 
   def command_cancel(self):
     self.cmd_win.delete(1.0, tki.END)
