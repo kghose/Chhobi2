@@ -64,7 +64,9 @@ class CmdHist:
     self.completions_idx = None
 
   def add(self, cmd):
-    self.history.append(cmd.strip())#Get rid of newlines
+    cmd = cmd.strip()#Get rid of newlines
+    if cmd not in self.history:
+      self.history.append(cmd)
     self.partial = None #Need to clear this so we can make the suggestions list afresh
     logger.debug(self.history)
 
