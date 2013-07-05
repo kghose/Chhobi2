@@ -236,7 +236,6 @@ class App(object):
   def browse_history(self, keysym):
     partial = self.cmd_win.get(1.0, tki.INSERT)
     insert = self.cmd_win.index(tki.INSERT)
-    #from IPython import embed;embed()
     if keysym == 'Up':
       step = -1
     else:
