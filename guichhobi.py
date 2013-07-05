@@ -87,17 +87,17 @@ class App(object):
     self.dir_win.treeview.bind("<<TreeviewSelect>>", self.selection_changed, add='+')
     self.dir_win.treeview.bind('<<TreeviewOpen>>', self.open_external, add='+')
 
-    fr = tki.Frame(self.root)
-    fr.pack(side='top')#, expand=True, fill='x')
+    fr = tki.Frame(self.root, bg='black')
+    fr.pack(side='top')
 
     #A trick to force the thumbnail_label to a particular size
-    f = tki.Frame(fr, height=155, width=155, bg='black')
+    f = tki.Frame(fr, height=150, width=150)
     f.pack_propagate(0) # don't shrink
     f.pack(side='left')
-    self.thumbnail_label = tki.Label(f)
-    self.thumbnail_label.pack()
+    self.thumbnail_label = tki.Label(f, bg='black')
+    self.thumbnail_label.pack(fill='both', expand=True)
 
-    self.info_text = tki.Text(fr, width=40, height=12, fg='white', bg='black', padx=5, pady=5)
+    self.info_text = tki.Text(fr, width=40, height=12, fg='white', bg='black', padx=5, pady=5, highlightthickness=0)#highlightthickness removes the border so we get a cool uniform black band
     self.info_text['font'] = ('courier', '11')
     self.info_text.pack(side='left', fill='x')
 
