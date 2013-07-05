@@ -64,7 +64,7 @@ class App(object):
     self.command_prefix = ['d', 'c', 'k', 's', 'z']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
     self.pile = set([]) #We temporarily 'hold' files here
-    self.cmd_history = set([])
+    self.cmd_history = lch.CmdHist(memory=20)
 
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool and save configuration."""
@@ -122,6 +122,8 @@ class App(object):
         return 'break'
       elif event.keysym == 'Escape':
         self.command_cancel()
+      elif event.keysym == 'Up' or event.keysym == 'Down':
+        self.browse_history(event.keysym)
 
   def propagate_key_to_browser(self, event):
     """When we are in idle mode we like to mirror some key presses in the command window to the file browser."""
@@ -230,6 +232,20 @@ class App(object):
   def command_cancel(self):
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
+
+  def browse_history(self, keysym):
+    partial = self.cmd_win.get(1.0, tki.INSERT)
+    insert = self.cmd_win.index(tki.INSERT)
+    #from IPython import embed;embed()
+    if keysym == 'Up':
+      step = -1
+    else:
+      step = 1
+    suggestion = self.cmd_history.completion(partial, step)
+    if suggestion is not '':
+      self.cmd_win.delete(1.0, tki.END)
+      self.cmd_win.insert(tki.END, suggestion)
+      self.cmd_win.mark_set(tki.INSERT, insert)
 
   def set_new_photo_root(self, new_root):
     self.photo_root = new_root

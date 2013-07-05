@@ -8,7 +8,7 @@ c) Create smartfolders based on search criteria
 import logging
 logger = logging.getLogger(__name__)
 from subprocess import Popen, PIPE, list2cmdline
-import os, plistlib, argparse, re
+import re, collections
 
 #The regexp for substituting mdfind syntax into our simplified syntax
 #http://docs.python.org/2/library/re.html
@@ -52,6 +52,37 @@ def quick_look_file(files, mode='-p'):
 
 def reveal_file_in_finder(files=[]):
   Popen(['open', '-R'] + files)
+
+class CmdHist:
+  """A tiny class to implement a crude command history. We keep adding new commands to the deque. Older
+   commands are forgotten (the deque has a finite length). When we want to ask for completion we send
+   in a 'hint' which is a few characters. We give suggestions matching the hint."""
+  def __init__(self, memory=20):
+    self.history = collections.deque(maxlen=memory)
+    self.partial = None
+    self.completions = None
+    self.completions_idx = None
+
+  def add(self, cmd):
+    self.history.append(cmd.strip())#Get rid of newlines
+    self.partial = None #Need to clear this so we can make the suggestions list afresh
+    logger.debug(self.history)
+
+  def completion(self, partial, step):
+    """Hint is the partial command we send in for matching, step is +1 or -1 indicating which we way we go
+    in the deque."""
+    partial = partial.strip()
+    logger.debug(partial)
+    if self.partial == partial:
+      self.completions_idx += step
+      if self.completions_idx >= len(self.completions): self.completions_idx = 0
+      if self.completions_idx < 0: self.completions_idx = len(self.completions) - 1
+    else:
+      self.partial = partial
+      self.completions = [c for c in self.history if c.startswith(partial)]
+      self.completions_idx = len(self.completions) - 1
+    if self.completions == []: return ''
+    return self.completions[self.completions_idx]
 
 if __name__ == "__main__":
   import sys
