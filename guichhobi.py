@@ -145,7 +145,7 @@ class App(object):
     info_text = ''
 
     if len(cap_set):
-      info_text += 'Caption       : {:s}\n'.format(cap_set.pop())
+      info_text += 'Caption       :\n{:s}\n'.format(cap_set.pop())
     else:
       info_text += 'Caption       : -\n'
     info_text +=   'Keywords      : '
