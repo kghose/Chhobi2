@@ -3,12 +3,12 @@ Minimal Photo Organizer for Mac
 
 ![Chhobi screen shot](https://raw.github.com/kghose/Chhobi2/gh-pages/images/screenshot001.png)
 
-*Because photographers can be geeks too*
+## `Because photographers can be geeks too`
 
 Chhobi is a minimal photo organizer for Mac that uses a pseudo command line interface. Chhobi allows you to browse through your photos on disk and see their metadata. You can search for photos by any metadata that Mac OS X spotlight catalogs. You can add/modify captions and keywords on photos and select photos for batch resizing.
 
 Chhobi = [Python] + [Tkinter] + [exiftool] + [mdfind] + [PIL]
-------------------------------------------------------------------------------------
+-------------------------------------------------------------
 
 [Python]: http://python.org
 [Tkinter]: http://docs.python.org/2/library/tkinter.html
@@ -70,11 +70,11 @@ z WxH            - resize all images in pile to fit within H pixels high and W p
 
 The user manual is accessed by running the program with the -h option
 
-i.e. python guichhobi.py -h
+    python guichhobi.py -h
 
 Rationale
 =========
-I think iPhoto is bloated and any photo organizer concept I could come up with seemed to unnecessarily duplicate many standard OS functions, such as file organization and metadata searching. Several powerful commandline tools like exiftool, mdfind and convert already exist to manipulate images and image metadata. So I harked back to my Unix days and thought, why not go retro? Why not go back to the GUI as a wrapper around powerful and fast commandline tools? The use of an actual command line to perform all the actions was, of course, not strictly necessary, but if you are going retro, why not go all the way?
+I think iPhoto is bloated, and any photo organizer concept I could come up with, seemed to unnecessarily duplicate many standard OS functions, such as file organization and metadata searching. Several powerful commandline tools like exiftool, mdfind and convert already exist to manipulate images and image metadata. So I harked back to my Unix days and thought, why not go retro? Why not go back to the GUI as a wrapper around powerful and fast commandline tools? The use of an actual command line to perform all the actions was, of course, not strictly necessary, but if you are going retro, why not go all the way?
 
 Features
 ========
@@ -117,19 +117,28 @@ TODO
 - [ ] Commands to change appearance
 
 
-Resources
-=========
+Programming notes and Resources
+===============================
+
+Tkinter
+-------
+* A Tkinter app, when launched from the Terminal will not grab focus ([focus stays in Terminal][1])
+* Get rid of 'frame' around text box : set `highlightthickness=0`
+
+
+[1]: http://sourceforge.net/mailarchive/forum.php?thread_name=299cc2dd0909141604t5013feddkd6e82c0120d38c6a%40mail.gmail.com&forum_name=tcl-mac
+
+
+Mac OS X
+--------
 
 RawQuery format:
 http://developer.apple.com/library/mac/#documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html#//apple_ref/doc/uid/TP40001849-CJBEJBHH
 
 Metadata codes:
-
 http://developer.apple.com/library/mac/#documentation/Carbon/Reference/MetadataAttributesRef/Reference/CommonAttrs.html#//apple_ref/doc/uid/TP40001694-SW1
 
 
-Programming notes
-=================
 Integrating with finder
 -----------------------
 My initial idea was to have no GUI elements at all, instead using the finder to select and view the images. In a preliminary version I had a thread that polled the finder for its current selection periodically and used that to drive the interface. This however had a major drawbacks - the applescript (run as a subprocess through oascript) that I used loaded the Finder and the load increased with the size of the selection. The GUI remained responsive since I used a spearate thread for the polling, but my fans started going off and Finder would start consuming CPU when the application was just sitting there. I decided instead to build in a tree view into the application and use Finder for previews only instead.
