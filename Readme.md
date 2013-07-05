@@ -72,9 +72,7 @@ The user manual is accessed by running the program with the -h option
 
     python guichhobi.py -h
 
-Short screen cast
------------------
-<iframe width="640" height="360" src="//www.youtube.com/embed/l20VpopThz0?rel=0" frameborder="0" allowfullscreen></iframe>
+[Short screen cast][http://www.youtube.com/watch?v=l20VpopThz0]
 
 Rationale
 =========
