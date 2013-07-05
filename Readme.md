@@ -72,6 +72,10 @@ The user manual is accessed by running the program with the -h option
 
     python guichhobi.py -h
 
+Short screen cast
+-----------------
+<iframe width="640" height="360" src="//www.youtube.com/embed/l20VpopThz0?rel=0" frameborder="0" allowfullscreen></iframe>
+
 Rationale
 =========
 I think iPhoto is bloated, and any photo organizer concept I could come up with, seemed to unnecessarily duplicate many standard OS functions, such as file organization and metadata searching. Several powerful commandline tools like exiftool, mdfind and convert already exist to manipulate images and image metadata. So I harked back to my Unix days and thought, why not go retro? Why not go back to the GUI as a wrapper around powerful and fast commandline tools? The use of an actual command line to perform all the actions was, of course, not strictly necessary, but if you are going retro, why not go all the way?
