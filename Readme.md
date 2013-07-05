@@ -1,19 +1,71 @@
-Minimal Photo Organizer for Mac.
+Minimal Photo Organizer for Mac
+-------------------------------
 
 ![Chhobi screen shot](https://raw.github.com/kghose/Chhobi2/gh-pages/images/screenshot001.png)
 
-Because photographers can be geeks too.
+```Because photographers can be geeks too```
 
 Chhobi is a minimal photo organizer for Mac that uses a pseudo command line interface. Chhobi allows you to browse through your photos on disk and see their metadata. You can search for photos by any metadata that Mac OS X spotlight catalogs. You can add/modify captions and keywords on photos and select photos for batch resizing.
 
-Chhobi = [Python] + [Tkinter] + [exiftool][exiftool] + [mdfind][mdfind] + [PIL][pil]
+Chhobi = [Python] + [Tkinter] + [exiftool] + [mdfind] + [PIL]
 ------------------------------------------------------------------------------------
 
 [Python]: http://python.org
 [Tkinter]: http://docs.python.org/2/library/tkinter.html
 [exiftool]: http://www.sno.phy.queensu.ca/~phil/exiftool/exiftool_pod.html
 [mdfind]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/mdfind.1.html
-[pil]: http://effbot.org/zone/pil-index.htm
+[PIL]: http://effbot.org/zone/pil-index.htm
+
+Manual
+------
+
+```
+The GUI consists of four panels
+-----------------------
+|                     |
+|         A           |
+|                     |
+|---------------------|
+|         |           |
+|    B    |     C     |
+|         |           |
+|---------------------|
+|         D           |
+-----------------------
+
+A is the directory/file list browser
+B is the thumbnail pane
+C is the info pane where you can see the photo comments, keywords
+  and a bunch of EXIF data
+D is the command line. Hitting enter executes the query
+
+Starting the program with the -h option will print this usage manual
+Starting the program with the -d option will print debugger messages to the console
+
+Commands:
+
+Esc              - cancel current command
+Enter            - execute current command
+[arrow keys]     - navigate in file browser (even when in command window). Once you start a command
+                   your arrow keys work as normal cursor keys in the command window. When in command mode
+                   up and down arrow keys step through the history
+[right cursor]   - If an image file is selected in file browser, will open the file in a quick view window
+r                - Reveal the current files/folders in finder
+a                - add selected files to pile
+x                - remove selected files from pile (if they exist in pile)
+p                - show pile
+
+After typing the following commands you need to hit enter to execute
+d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
+c <text>         - set this text as picture caption.
+k <keyword>      - add this keyword to the current file/selection
+k- <keyword>     - remove this keyword from the current file/selection
+s <query string> - perform this mdfinder query and set the file browser to this virtual listing
+cp               - clear all images from pile
+z WxH            - resize all images in pile to fit within H pixels high and W pixels wide,
+                   put them in a temporary directory and reveal the directory
+
+```
 
 The user manual is accessed by running the program with the -h option
 
@@ -55,12 +107,12 @@ http://www.gnu.org/licenses/gpl.html
 
 TODO
 ====
-* [DONE] Selections/collections
-* [DONE] Resize and zip collection to send via mail
-* Export queries as smart folders
-* [DONE, silently generate thumbnail] Indicate when preview thumbnail is not available - autogenerate one
-* Command history
-* Commands to change appearance
+- [x] Selections/collections
+- [x] Resize and zip collection to send via mail
+- [x] (Won't do) Export queries as smart folders
+- [x] (silently generate thumbnail) Indicate when preview thumbnail is not available - autogenerate one
+- [x] Command history
+- [ ] Commands to change appearance
 
 
 Resources
@@ -106,8 +158,9 @@ Python's [plistlib][plistlib] module offers a very elegant interface to reading 
 
 Icon
 ----
+```python
 import Image, base64
 im = Image.open('chhobi-icon.png')
 imsm = im.resize((150,150))
 str = imsm.tostring(encoder_name='raw')
-str64 = base64.b64encode(str)
+str64 = base64.b64encode(str)```
