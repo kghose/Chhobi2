@@ -32,6 +32,7 @@ r                - Reveal the current files/folders in finder
 a                - add selected files to pile
 x                - remove selected files from pile (if they exist in pile)
 p                - show pile
+h                - show help
 
 After typing the following commands you need to hit enter to execute
 d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
@@ -60,7 +61,7 @@ class App(object):
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
     self.cmd_state = 'Idle'
-    self.one_key_cmds = ['r', 'a', 'x', 'p']
+    self.one_key_cmds = ['r', 'a', 'x', 'p', 'h']
     self.command_prefix = ['d', 'c', 'k', 's', 'z']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
     self.pile = set([]) #We temporarily 'hold' files here
@@ -199,6 +200,8 @@ class App(object):
       self.remove_selected_from_pile()
     elif chr == 'p':
       self.show_pile()
+    elif chr == 'h':
+      self.show_help()
 
   def command_execute(self, event):
     command = self.cmd_win.get(1.0, tki.END)
@@ -287,6 +290,12 @@ class App(object):
       im.thumbnail(size, Image.ANTIALIAS)
       im.save(outfile, 'JPEG')
     lch.reveal_file_in_finder([out_dir])
+
+  def show_help(self):
+    top = tki.Toplevel()
+    top.title("Help")
+    msg = tki.Message(top, text=__doc__, font=('consolas', 11))
+    msg.pack()
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)

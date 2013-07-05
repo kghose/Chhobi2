@@ -3,7 +3,7 @@ Minimal Photo Organizer for Mac
 
 ![Chhobi screen shot](https://raw.github.com/kghose/Chhobi2/gh-pages/images/screenshot001.png)
 
-```Because photographers can be geeks too```
+*Because photographers can be geeks too*
 
 Chhobi is a minimal photo organizer for Mac that uses a pseudo command line interface. Chhobi allows you to browse through your photos on disk and see their metadata. You can search for photos by any metadata that Mac OS X spotlight catalogs. You can add/modify captions and keywords on photos and select photos for batch resizing.
 
@@ -54,6 +54,7 @@ r                - Reveal the current files/folders in finder
 a                - add selected files to pile
 x                - remove selected files from pile (if they exist in pile)
 p                - show pile
+h                - show help/manual
 
 After typing the following commands you need to hit enter to execute
 d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
@@ -107,6 +108,7 @@ http://www.gnu.org/licenses/gpl.html
 
 TODO
 ====
+- [ ] Expand search parsing
 - [x] Selections/collections
 - [x] Resize and zip collection to send via mail
 - [x] (Won't do) Export queries as smart folders
@@ -163,4 +165,5 @@ import Image, base64
 im = Image.open('chhobi-icon.png')
 imsm = im.resize((150,150))
 str = imsm.tostring(encoder_name='raw')
-str64 = base64.b64encode(str)```
+str64 = base64.b64encode(str)
+```
