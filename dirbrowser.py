@@ -14,7 +14,12 @@ class DirBrowse():
      ptype = 'dummy'
   """
   def __init__(self, parent, dir_root='./', **options):
-    self.treeview = ttk.Treeview(parent, columns=("fullpath", "type"),show='tree',displaycolumns=())
+    style = ttk.Style()
+    style.map("my.Treeview",
+      foreground=[('selected', 'yellow'), ('active', 'white')],
+      background=[('selected', 'black'), ('active', 'black')]
+    )
+    self.treeview = ttk.Treeview(parent, columns=("fullpath", "type"),show='tree',displaycolumns=(), style='my.Treeview')
     self.set_dir_root(dir_root)
     self.treeview.bind('<<TreeviewOpen>>', self.update_tree)
 
