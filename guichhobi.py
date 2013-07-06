@@ -98,13 +98,20 @@ class App(object):
     self.thumbnail_label.pack(fill='both', expand=True)
 
     self.info_text = tki.Text(fr, width=40, height=12, fg='white', bg='black', padx=5, pady=5, highlightthickness=0)#highlightthickness removes the border so we get a cool uniform black band
-    self.info_text['font'] = ('courier', '11')
-    self.info_text.pack(side='left', fill='x')
+    self.setup_info_text()
 
     self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3, fg='black', bg='white')
     self.cmd_win['font'] = ('consolas', '12')
     self.cmd_win.pack(side='top', fill='x')
     self.cmd_win.bind("<Key>", self.cmd_key_trap)
+
+  def setup_info_text(self):
+    """Info window set up is a little complicated."""
+    self.info_text['font'] = ('courier', '11')
+    self.info_text.pack(side='left', fill='x')
+    self.info_text.tag_configure('caption', font='helvetica 11 bold', relief='raised')
+    self.info_text.tag_configure('keywords', font='helvetica 11 italic')
+
 
   def cmd_key_trap(self, event):
     chr = event.char
@@ -132,40 +139,6 @@ class App(object):
     self.dir_win.treeview.event_generate('<Key>', keycode=event.keycode)
     self.cmd_win.focus_set()
 
-  def formatted_metadata_string(self, exiv_data):
-    cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
-    key_set = set([ky for ky in exiv_data[0].get('Keywords', [])])
-
-    logger.debug(cap_set)
-    logger.debug(key_set)
-
-    for n in range(1,len(exiv_data)):
-      cap_set &= set([exiv_data[n].get('Caption-Abstract', '')])
-      key_set &= set([ky for ky in exiv_data[n].get('Keywords', [])])
-
-    info_text = ''
-
-    if len(cap_set):
-      info_text += 'Caption       :\n{:s}\n'.format(cap_set.pop())
-    else:
-      info_text += 'Caption       : -\n'
-    info_text +=   'Keywords      : '
-    if len(key_set):
-      info_text += key_set.pop()
-      for key in key_set:
-        info_text += ',' + key
-      info_text += '\n'
-    else:
-      info_text += '-\n'
-
-    if len(exiv_data) == 1:
-      for k,v in exiv_data[0].iteritems(): #in ['Model', 'LensID', 'FocalLength', 'ISO', 'ShutterSpeed', 'FNumber']:
-        if k not in ['Caption-Abstract','Keywords', 'SourceFile']:
-          info_text += k.ljust(14) + ': ' + str(v) + '\n'
-    else:
-      info_text += '(Showing common info)'
-    return info_text
-
   def get_thumbnail(self, file):
     im_data = self.etool.get_thumbnail_image(file)
     if len(im_data):
@@ -187,9 +160,38 @@ class App(object):
       self.thumbnail_label.image = photo #Keep a reference
 
       exiv_data = self.etool.get_metadata_for_files(files)
-      info_text = self.formatted_metadata_string(exiv_data)
-      self.info_text.delete(1.0, tki.END)
-      self.info_text.insert(tki.END, info_text)
+      self.display_exiv_info(exiv_data)
+
+  def display_exiv_info(self, exiv_data):
+    cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
+    key_set = set([ky for ky in exiv_data[0].get('Keywords', [])])
+
+    logger.debug(cap_set)
+    logger.debug(key_set)
+
+    for n in range(1,len(exiv_data)):
+      cap_set &= set([exiv_data[n].get('Caption-Abstract', '')])
+      key_set &= set([ky for ky in exiv_data[n].get('Keywords', [])])
+
+    self.info_text.delete(1.0, tki.END)
+    if len(cap_set):
+      self.info_text.insert(tki.END, cap_set.pop(), ('caption',))
+    info_text = '\n'
+    if len(key_set):
+      info_text += key_set.pop()
+      for key in key_set:
+        info_text += ', ' + key
+      info_text += '\n'
+    self.info_text.insert(tki.END, info_text, ('keywords',))
+
+    info_text = '\n'
+    if len(exiv_data) == 1:
+      for k,v in exiv_data[0].iteritems(): #in ['Model', 'LensID', 'FocalLength', 'ISO', 'ShutterSpeed', 'FNumber']:
+        if k not in ['Caption-Abstract','Keywords', 'SourceFile']:
+          info_text += k.ljust(14) + ': ' + str(v) + '\n'
+    else:
+      info_text += '(Showing common info)'
+    self.info_text.insert(tki.END, info_text)
 
   def single_key_command_execute(self, chr):
     if chr == 'r':
