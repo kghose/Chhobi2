@@ -1,20 +1,29 @@
-Minimal Photo Organizer for Mac
--------------------------------
+A minimalist photo organizer for Mac
+------------------------------------
 
 ![Chhobi screen shot](https://raw.github.com/kghose/Chhobi2/gh-pages/images/screenshot001.png)
 
 ## `Because photographers can be geeks too`
 
-Chhobi is a minimal photo organizer for Mac that uses a pseudo command line interface. Chhobi allows you to browse through your photos on disk and see their metadata. You can search for photos by any metadata that Mac OS X spotlight catalogs. You can add/modify captions and keywords on photos and select photos for batch resizing.
+Features
+========
+* Simple file browser to flip through images
+* Powerful searching via Mac OS X spotlight
+* Displays basic EXIF information
+* Displays embedded thumbnail (or generates one on the fly)
+* Allows you to modify captions and keywords only
+* Add photos to a pile and then batch resize and copy, ready for emailing
+* Pseudo commandline interface: access all functions with short keystrokes
 
-Chhobi = [Python] + [Tkinter] + [exiftool] + [mdfind] + [PIL]
--------------------------------------------------------------
+## Chhobi = [Python] + [Tkinter] + [exiftool] + [mdfind] + [PIL]
 
 [Python]: http://python.org
 [Tkinter]: http://docs.python.org/2/library/tkinter.html
 [exiftool]: http://www.sno.phy.queensu.ca/~phil/exiftool/exiftool_pod.html
 [mdfind]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/mdfind.1.html
 [PIL]: http://effbot.org/zone/pil-index.htm
+
+[Short screen cast](http://www.youtube.com/watch?v=l20VpopThz0)
 
 Manual
 ------
@@ -72,19 +81,11 @@ The user manual is accessed by running the program with the -h option
 
     python guichhobi.py -h
 
-[Short screen cast][http://www.youtube.com/watch?v=l20VpopThz0]
+or pressing the 'h' key in the command window
 
 Rationale
 =========
 I think iPhoto is bloated, and any photo organizer concept I could come up with, seemed to unnecessarily duplicate many standard OS functions, such as file organization and metadata searching. Several powerful commandline tools like exiftool, mdfind and convert already exist to manipulate images and image metadata. So I harked back to my Unix days and thought, why not go retro? Why not go back to the GUI as a wrapper around powerful and fast commandline tools? The use of an actual command line to perform all the actions was, of course, not strictly necessary, but if you are going retro, why not go all the way?
-
-Features
-========
-* Simple file browser to flip through images
-* Displays basic EXIF information
-* Displays embedded thumbnail (or generates one on the fly)
-* Allows you to modify captions and keywords only
-* Powerful searching via Mac OS X spotlight
 
 
 License
@@ -110,13 +111,13 @@ http://www.gnu.org/licenses/gpl.html
 
 TODO
 ====
-- [ ] Expand search parsing
-- [x] Selections/collections
-- [x] Resize and zip collection to send via mail
-- [x] (Won't do) Export queries as smart folders
-- [x] (silently generate thumbnail) Indicate when preview thumbnail is not available - autogenerate one
-- [x] Command history
-- [ ] Commands to change appearance
+- ( ) Expand search parsing
+- (x) Selections/collections
+- (x) Resize and zip collection to send via mail
+- (x) (Won't do) Export queries as smart folders
+- (x) (silently generate thumbnail) Indicate when preview thumbnail is not available - autogenerate one
+- (x) Command history
+- ( ) Commands to change appearance
 
 
 Programming notes and Resources
