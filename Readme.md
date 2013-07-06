@@ -15,7 +15,7 @@ Features
 * Add photos to a pile and then batch resize and copy, ready for emailing
 * Pseudo commandline interface: access all functions with short keystrokes
 
-## Chhobi = [Python] + [Tkinter] + [exiftool] + [mdfind] + [PIL]
+### Chhobi = [Python] + [Tkinter] + [exiftool] + [mdfind] + [PIL]
 
 [Python]: http://python.org
 [Tkinter]: http://docs.python.org/2/library/tkinter.html
