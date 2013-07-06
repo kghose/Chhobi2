@@ -105,6 +105,8 @@ class App(object):
     self.cmd_win.pack(side='top', fill='x')
     self.cmd_win.bind("<Key>", self.cmd_key_trap)
 
+    self.chhobi_icon = tki.PhotoImage(file="icon_sm.pgm") #This is the photo we show for blank
+
   def setup_info_text(self):
     """Info window set up is a little complicated."""
     self.info_text['font'] = ('courier', '11')
@@ -161,6 +163,10 @@ class App(object):
 
       exiv_data = self.etool.get_metadata_for_files(files)
       self.display_exiv_info(exiv_data)
+    else:
+      self.info_text.delete(1.0, tki.END)
+      self.thumbnail_label.config(image=self.chhobi_icon)
+#      self.thumbnail_label.image =
 
   def display_exiv_info(self, exiv_data):
     cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
