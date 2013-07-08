@@ -19,6 +19,9 @@ query_map = {
   'k': 'kMDItemKeywords',    #keywords
   'c': 'kMDItemDescription', #caption
   'd': 'kMDItemContentCreationDate',
+  'f': 'kMDItemFNumber',
+  't': 'kMDItemExposureTimeSeconds',
+  'l': 'kMDItemFocalLength'
 }
 
 def query_to_rawquery(query):
