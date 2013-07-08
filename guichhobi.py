@@ -9,6 +9,8 @@
 |         |           |
 |---------------------|
 |         D           |
+|---------------------|
+|         E           |
 -----------------------
 
 A is the directory/file list browser
@@ -16,6 +18,7 @@ B is the thumbnail pane
 C is the info pane where you can see the photo comments, keywords
   and a bunch of EXIF data
 D is the command line. Hitting enter executes the query
+E is the status window, showing messages etc.
 
 Starting the program with the -h option will print this usage manual
 Starting the program with the -d option will print debugger messages to the console
@@ -88,7 +91,7 @@ class App(object):
     self.dir_win.treeview.bind('<<TreeviewOpen>>', self.open_external, add='+')
 
     fr = tki.Frame(self.root, bg='black')
-    fr.pack(side='top')
+    fr.pack(side='top', fill='x')
 
     #A trick to force the thumbnail_label to a particular size
     f = tki.Frame(fr, height=150, width=150)
@@ -96,9 +99,7 @@ class App(object):
     f.pack(side='left')
     self.thumbnail_label = tki.Label(f, bg='black')
     self.thumbnail_label.pack(fill='both', expand=True)
-
-    self.info_text = tki.Text(fr, width=40, height=12, fg='white', bg='black', padx=5, pady=5, highlightthickness=0)#highlightthickness removes the border so we get a cool uniform black band
-    self.setup_info_text()
+    self.setup_info_text(fr)
 
     self.cmd_win = tki.Text(self.root, undo=True, width=50, height=3, fg='black', bg='white')
     self.cmd_win['font'] = ('consolas', '12')
@@ -110,8 +111,9 @@ class App(object):
 
     self.chhobi_icon = tki.PhotoImage(file="icon_sm.pgm") #This is the photo we show for blank
 
-  def setup_info_text(self):
+  def setup_info_text(self, fr):
     """Info window set up is a little complicated."""
+    self.info_text = tki.Text(fr, width=40, height=12, fg='white', bg='black', padx=5, pady=5, highlightthickness=0)#highlightthickness removes the border so we get a cool uniform black band
     self.info_text['font'] = ('courier', '11')
     self.info_text.pack(side='left', fill='x')
     self.info_text.tag_configure('caption', font='helvetica 11 bold', relief='raised')
