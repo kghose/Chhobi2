@@ -105,6 +105,9 @@ class App(object):
     self.cmd_win.pack(side='top', fill='x')
     self.cmd_win.bind("<Key>", self.cmd_key_trap)
 
+    self.log_win = tki.Text(self.root, width=50, height=1, fg='yellow', bg='black', font=('arial', '10'), highlightthickness=0)
+    self.log_win.pack(side='top', fill='x')
+
     self.chhobi_icon = tki.PhotoImage(file="icon_sm.pgm") #This is the photo we show for blank
 
   def setup_info_text(self):
@@ -166,7 +169,6 @@ class App(object):
     else:
       self.info_text.delete(1.0, tki.END)
       self.thumbnail_label.config(image=self.chhobi_icon)
-#      self.thumbnail_label.image =
 
   def display_exiv_info(self, exiv_data):
     cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
@@ -240,9 +242,17 @@ class App(object):
     self.cmd_state = 'Idle'
     self.cmd_history.add(command) #Does not distinguish between valid and invalid commands. Ok?
 
+  def log_command(self, cmd):
+    self.log_win.insert(tki.END, cmd)
+    self.log_win.after(500, self.clear_log_command)
+
+  def clear_log_command(self):
+    self.log_win.delete(1.0, tki.END)
+
   def command_cancel(self):
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
+    self.log_command('Command canceled')
 
   def browse_history(self, keysym):
     partial = self.cmd_win.get(1.0, tki.INSERT)
@@ -275,16 +285,23 @@ class App(object):
 
   def add_selected_to_pile(self):
     files = self.dir_win.file_selection()#Only returns files
+    l0 = len(self.pile)
     for f in files:
       self.pile.add(f)
+    l1 = len(self.pile)
+    self.log_command('Added {:d} files to pile'.format(l1-l0))
 
   def remove_selected_from_pile(self):
     files = self.dir_win.file_selection()#Only returns files
+    l0 = len(self.pile)
     for f in files:
       self.pile.discard(f)
+    l1 = len(self.pile)
+    self.log_command('Removed {:d} files from pile'.format(l0-l1))
 
   def clear_pile(self):
     self.pile.clear()
+    self.log_command('Pile cleared')
 
   def show_pile(self):
     self.dir_win.virtual_flat(self.pile, title='Showing Pile. Select this to go back')
@@ -304,6 +321,7 @@ class App(object):
     top.title("Help")
     msg = tki.Message(top, text=__doc__, font=('consolas', 11))
     msg.pack()
+    self.log_command('Showing help')
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
