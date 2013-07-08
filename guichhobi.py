@@ -246,7 +246,7 @@ class App(object):
 
   def log_command(self, cmd):
     self.log_win.insert(tki.END, cmd)
-    self.log_win.after(500, self.clear_log_command)
+    self.log_win.after(750, self.clear_log_command)
 
   def clear_log_command(self):
     self.log_win.delete(1.0, tki.END)
@@ -254,7 +254,7 @@ class App(object):
   def command_cancel(self):
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
-    self.log_command('Command canceled')
+    self.log_command('Command canceled. ')
 
   def browse_history(self, keysym):
     partial = self.cmd_win.get(1.0, tki.INSERT)
@@ -276,6 +276,7 @@ class App(object):
   def search_execute(self, query_str):
     files = lch.execute_query(query_str, root = self.config.get('DEFAULT', 'root'))
     self.dir_win.virtual_flat(files)
+    self.log_command('Found {:d} files. '.format(len(files)))
 
   def open_external(self, event):
     files = self.dir_win.file_selection()#Only returns files
@@ -291,7 +292,7 @@ class App(object):
     for f in files:
       self.pile.add(f)
     l1 = len(self.pile)
-    self.log_command('Added {:d} files to pile'.format(l1-l0))
+    self.log_command('Added {:d} files to pile. '.format(l1-l0))
 
   def remove_selected_from_pile(self):
     files = self.dir_win.file_selection()#Only returns files
@@ -299,11 +300,11 @@ class App(object):
     for f in files:
       self.pile.discard(f)
     l1 = len(self.pile)
-    self.log_command('Removed {:d} files from pile'.format(l0-l1))
+    self.log_command('Removed {:d} files from pile. '.format(l0-l1))
 
   def clear_pile(self):
     self.pile.clear()
-    self.log_command('Pile cleared')
+    self.log_command('Pile cleared. ')
 
   def show_pile(self):
     self.dir_win.virtual_flat(self.pile, title='Showing Pile. Select this to go back')
