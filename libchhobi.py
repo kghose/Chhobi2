@@ -35,7 +35,7 @@ def query_to_rawquery(query):
 def execute_query(query, root = './'):
   raw_query = query_to_rawquery(query)
   cmd_args = ['mdfind', '-onlyin', root, raw_query]
-  return execute(cmd_args)
+  return execute_long(cmd_args)
 
 def execute(prog_args, blocking=True):
   """If blocking is True, use wait to get result. Otherwise simply return with no error checking etc etc."""
@@ -47,6 +47,18 @@ def execute(prog_args, blocking=True):
     return p.stdout.read().splitlines()
   else: #Non-blocking, return immediately
     return []
+
+def execute_long(prog_args):
+  """Don't use PIPE for stdout, use a file. Block
+  Needed for queries because PIPE barfs even for small amounts of data
+  """
+  logger.debug(list2cmdline(prog_args))
+  with open('query.txt','w') as stdout:
+    p = Popen(prog_args, stdin=PIPE, stdout=stdout, stderr=PIPE)
+    if p.wait():
+      logger.error(p.stderr.read())
+  with open('query.txt','r') as stdout:
+    return stdout.read().splitlines()
 
 def quick_look_file(files, mode='-p'):
   #mode can be -t or -p
