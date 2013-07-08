@@ -246,9 +246,11 @@ class App(object):
 
   def log_command(self, cmd):
     self.log_win.insert(tki.END, cmd)
-    self.log_win.after(750, self.clear_log_command)
+    self.log_win_after_id = self.log_win.after(750, self.clear_log_command)
 
   def clear_log_command(self):
+    if hasattr(self, 'log_win_after_id'):
+      self.log_win.after_cancel(self.log_win_after_id)
     self.log_win.delete(1.0, tki.END)
 
   def command_cancel(self):
@@ -274,6 +276,7 @@ class App(object):
     self.dir_win.set_dir_root(self.photo_root)
 
   def search_execute(self, query_str):
+    self.log_command('Searching for {:s}'.format(lch.query_to_rawquery(query_str)))
     files = lch.execute_query(query_str, root = self.config.get('DEFAULT', 'root'))
     self.dir_win.virtual_flat(files)
     self.log_command('Found {:d} files. '.format(len(files)))
