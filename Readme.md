@@ -123,6 +123,12 @@ TODO
 Programming notes and Resources
 ===============================
 
+Python
+------
+* When using Popen, do not us PIPE for production sized data. It freezes. Use files instead to read data from process output [pipe1].
+
+[pipe]: http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
+
 Tkinter
 -------
 * A Tkinter app, when launched from the Terminal will not grab focus ([focus stays in Terminal][1])
