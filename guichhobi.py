@@ -1,4 +1,4 @@
-"""The GUI consists of four panels
+"""The GUI consists of five panels
 -----------------------
 |                     |
 |         A           |
