@@ -29,7 +29,7 @@ Manual
 ------
 
 ```
-The GUI consists of four panels
+The GUI consists of five panels
 -----------------------
 |                     |
 |         A           |
@@ -40,6 +40,8 @@ The GUI consists of four panels
 |         |           |
 |---------------------|
 |         D           |
+|---------------------|
+|         E           |
 -----------------------
 
 A is the directory/file list browser
@@ -47,6 +49,7 @@ B is the thumbnail pane
 C is the info pane where you can see the photo comments, keywords
   and a bunch of EXIF data
 D is the command line. Hitting enter executes the query
+E is the status window, showing messages etc.
 
 Starting the program with the -h option will print this usage manual
 Starting the program with the -d option will print debugger messages to the console
