@@ -55,7 +55,8 @@ z WxH            - resize all images in pile to fit within H pixels high and W p
 """
 import logging
 logger = logging.getLogger(__name__)
-import Tkinter as tki, tempfile, argparse, Image, ImageTk, ConfigParser
+import Tkinter as tki, tempfile, argparse, ConfigParser
+from PIL import Image, ImageTk
 import libchhobi as lch, dirbrowser as dirb, exiftool
 from cStringIO import StringIO
 from os.path import join
@@ -394,7 +395,7 @@ class App(object):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
   parser.add_argument('-d', default=False, action='store_true', help='Print debugging messages')
-  args = parser.parse_args()
+  args,_ = parser.parse_known_args()
   if args.d:
     level=logging.DEBUG
   else:
