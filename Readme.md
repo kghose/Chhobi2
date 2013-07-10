@@ -126,7 +126,8 @@ TODO
 - (x) (silently generate thumbnail) Indicate when preview thumbnail is not available - autogenerate one
 - (x) Command history
 - ( ) Commands to change appearance
-
+- ( ) Increase status bar time
+- ( ) Show status when changing browser panes
 
 Programming notes and Resources
 ===============================
@@ -156,7 +157,8 @@ setup(
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],
-)```
+)
+```
 
 python setup.py py2app -e sip,pandas,matplotlib,sympy,scipy --matplotlib-backends -
 
