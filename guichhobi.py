@@ -59,7 +59,7 @@ import Tkinter as tki, tempfile, argparse, ConfigParser
 from PIL import Image, ImageTk
 import libchhobi as lch, dirbrowser as dirb, exiftool
 from cStringIO import StringIO
-from os.path import join
+from os.path import join, expanduser
 
 class MultiPanel():
   """We want to setup a pseudo tabbed widget with three treeviews. One showing the disk, one the pile and
@@ -114,16 +114,17 @@ class App(object):
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool and save configuration."""
     self.etool.close()
-    with open('chhobi2.cfg', 'wb') as configfile:
+    with open(self.config_fname, 'wb') as configfile:
       self.config.write(configfile)
     self.root.quit() #Allow the rest of the quit process to continue
 
   def load_prefs(self):
+    self.config_fname = expanduser('~/chhobi2.cfg')
     self.config_default = {
         'root': './'
     }
     self.config = ConfigParser.ConfigParser(self.config_default)
-    self.config.read('chhobi2.cfg')
+    self.config.read(self.config_fname)
 
 #dir_root=self.config.get('DEFAULT','root')
   def setup_window(self):
