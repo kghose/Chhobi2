@@ -114,6 +114,7 @@ class App(object):
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool and save configuration."""
     self.etool.close()
+    self.config.set('DEFAULT', 'geometry', self.root.geometry())
     with open(self.config_fname, 'wb') as configfile:
       self.config.write(configfile)
     self.root.quit() #Allow the rest of the quit process to continue
@@ -121,7 +122,8 @@ class App(object):
   def load_prefs(self):
     self.config_fname = expanduser('~/chhobi2.cfg')
     self.config_default = {
-        'root': './'
+        'root': './',
+        'geometry': 'none',
     }
     self.config = ConfigParser.ConfigParser(self.config_default)
     self.config.read(self.config_fname)
@@ -159,6 +161,10 @@ class App(object):
     self.log_win.pack(side='top', fill='x')
 
     self.chhobi_icon = tki.PhotoImage(file="icon_sm.pgm") #This is the photo we show for blank
+
+    geom=self.config.get('DEFAULT', 'geometry')
+    if geom != 'none':
+      self.root.geometry(geom)
 
   def setup_info_text(self, fr):
     """Info window set up is a little complicated."""
