@@ -12,8 +12,9 @@ class DirBrowse(tki.Frame):
    * Dummy leaves which have not been opened yet (required to show the expanding arrow) which have a
      ptype = 'dummy'
   """
-  def __init__(self, parent, dir_root=None, **options):
+  def __init__(self, parent, dir_root=None, file_types=['jpg', 'tiff', 'gif', 'png', 'raw', 'nef', 'avi'], **options):
     tki.Frame.__init__(self, parent)
+    self.file_types = file_types
     style = ttk.Style()
     style.map("my.Treeview",
       foreground=[('selected', 'yellow'), ('active', 'white')],
@@ -49,9 +50,9 @@ class DirBrowse(tki.Frame):
       if os.path.isdir(p):
         ptype = 'directory'
       else: #We are a regular file
-        P = p.upper()
-        if not P.endswith('JPG') and not P.endswith('TIFF') and not P.endswith('GIF') and not P.endswith('PNG'):
-          continue
+        P = p.lower()
+        this_type = [str for str in self.file_types if P.endswith(str)]
+        if len(this_type) == 0: continue
         ptype = 'file'
 
       fname = os.path.split(p)[1]
