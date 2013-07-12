@@ -170,7 +170,7 @@ class App(object):
     """Info window set up is a little complicated."""
     self.info_text = tki.Text(fr, width=40, height=12, fg='white', bg='black', padx=5, pady=5, highlightthickness=0)#highlightthickness removes the border so we get a cool uniform black band
     self.info_text['font'] = ('courier', '11')
-    self.info_text.pack(side='left', fill='x')
+    self.info_text.pack(side='left', fill='x', expand=True)
     self.info_text.tag_configure('caption', font='helvetica 11 bold', relief='raised')
     self.info_text.tag_configure('keywords', font='helvetica 11 italic')
 
