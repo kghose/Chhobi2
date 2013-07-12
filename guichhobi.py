@@ -209,6 +209,7 @@ class App(object):
     else:
       logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file))
       #Slow process of generating thumbnail on the fly
+      if file.upper().endswith('AVI'): return self.chhobi_icon
       thumbnail = Image.open(file)
       thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
     return ImageTk.PhotoImage(thumbnail)
@@ -252,9 +253,13 @@ class App(object):
 
     info_text = '\n'
     if len(exiv_data) == 1:
-      for k,v in exiv_data[0].iteritems(): #in ['Model', 'LensID', 'FocalLength', 'ISO', 'ShutterSpeed', 'FNumber']:
-        if k not in ['Caption-Abstract','Keywords', 'SourceFile']:
-          info_text += k.ljust(14) + ': ' + str(v) + '\n'
+      if exiv_data[0]['FileType'].lower() in ['avi']:
+        key_list = ['DateTimeOriginal', 'Duration', 'ImageSize']
+      else:
+        key_list = ['CreateDate', 'FNumber', 'ShutterSpeed', 'ISO', 'FocalLength', 'DOF','LensID','Model']
+      for k in key_list:
+        if exiv_data[0].has_key(k):
+          info_text += k[:13].ljust(14) + ': ' + str(exiv_data[0][k]) + '\n'
     else:
       info_text += '(Showing common info)'
     self.info_text.insert(tki.END, info_text)

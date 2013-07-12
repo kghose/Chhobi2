@@ -47,9 +47,8 @@ class PersistentExifTool(object):
 
   def get_metadata_for_files(self, file_list):
     """Get standard metadata from the files."""
-    exiv_tags = ['-model', '-lensid', '-focallength', '-Dof', '-ISO', '-ShutterSpeed', '-fnumber',
-                 '-CreateDate', '-Caption-Abstract', '-keywords']
-    base_query = '\n'.join(exiv_tags)
+    all_tags = ['-FileType', '-CreateDate', '-DatetimeOriginal', '-model', '-lensid', '-focallength', '-Dof', '-ISO', '-ShutterSpeed', '-fnumber','-Duration', '-ImageSize', '-Caption-Abstract', '-keywords']
+    base_query = '\n'.join(all_tags)
     query = '-j\n' #To get JSON back
     for file in file_list:
       query += file + '\n'
