@@ -132,6 +132,12 @@ TODO
 Programming notes and Resources
 ===============================
 
+Video metadata
+--------------
+Exif tool can read video metadata
+
+
+
 Creating Mac OS X bundle
 ------------------------
 py2applet --make-setup ../Chhobi2/guichhobi.py ../Chhobi2/icon_sm.pgm ../Chhobi2/chhobi.icns
