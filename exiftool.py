@@ -90,7 +90,7 @@ class PersistentExifTool(object):
     video_files = [fi[0] for fi in file_list if fi[1]=='file:video']
     query = '\n'
     for file in photo_files:
-      query += file[0] + '\n'
+      query += file + '\n'
     if meta_data.has_key('caption'):
       query += '-Caption-Abstract={:s}\n\n'.format(meta_data['caption'])
     if meta_data.has_key('keywords'):
