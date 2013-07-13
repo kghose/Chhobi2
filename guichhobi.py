@@ -352,7 +352,7 @@ class App(object):
 
   def reveal_in_finder(self):
     files_folders = self.tab.active_widget.all_selection()#Returns both files and folders
-    if len(files_folders): lch.reveal_file_in_finder(files_folders)
+    if len(files_folders): lch.reveal_file_in_finder([fi[0] for fi in files_folders])
 
   def add_selected_to_pile(self):
     files = self.tab.active_widget.file_selection()#Only returns files
