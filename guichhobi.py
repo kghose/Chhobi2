@@ -348,7 +348,7 @@ class App(object):
 
   def open_external(self, event):
     files = self.tab.active_widget.file_selection()#Only returns files
-    if len(files): lch.quick_look_file(files)
+    if len(files): lch.quick_look_file([fi[0] for fi in files])
 
   def reveal_in_finder(self):
     files_folders = self.tab.active_widget.all_selection()#Returns both files and folders
