@@ -310,7 +310,7 @@ class App(object):
 
   def log_command(self, cmd):
     self.log_win.insert(tki.END, cmd)
-    self.log_win_after_id = self.log_win.after(750, self.clear_log_command)
+    self.log_win_after_id = self.log_win.after(2000, self.clear_log_command)
 
   def clear_log_command(self):
     if hasattr(self, 'log_win_after_id'):
@@ -378,14 +378,17 @@ class App(object):
     self.tab.widget_list[2].virtual_flat(self.pile, title='Showing pile.')
     self.tab.set_active_widget(2)
     self.selection_changed()
+    self.log_command('Picture pile')
 
   def show_browser(self):
     self.tab.set_active_widget(0)
     self.selection_changed()
+    self.log_command('File browser')
 
   def show_search(self):
     self.tab.set_active_widget(1)
     self.selection_changed()
+    self.log_command('Search results')
 
   def resize_and_show(self, size):
     size = (int(size[0]), int(size[1]))

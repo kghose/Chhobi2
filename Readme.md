@@ -129,8 +129,8 @@ TODO
 - (x) (silently generate thumbnail) Indicate when preview thumbnail is not available - autogenerate one
 - (x) Command history
 - ( ) Commands to change appearance
-- ( ) Increase status bar time
-- ( ) Show status when changing browser panes
+- (x) Increase status bar time
+- (x) Show status when changing browser panes
 
 Programming notes and Resources
 ===============================
