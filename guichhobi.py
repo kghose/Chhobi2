@@ -203,15 +203,19 @@ class App(object):
     self.cmd_win.focus_set()
 
   def get_thumbnail(self, file):
-    im_data = self.etool.get_thumbnail_image(file[0])
-    if len(im_data):
-      thumbnail = Image.open(StringIO(im_data))
+    if file[1]=='file:photo':
+      im_data = self.etool.get_thumbnail_image(file[0])
+      if len(im_data):
+        thumbnail = Image.open(StringIO(im_data))
+      else:
+        logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file[0]))
+        #Slow process of generating thumbnail on the fly
+        if file[1]=='file:video': return self.chhobi_icon
+        thumbnail = Image.open(file[0])
+        thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
     else:
-      logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file[0]))
-      #Slow process of generating thumbnail on the fly
-      if file[1]=='file:video': return self.chhobi_icon
-      thumbnail = Image.open(file[0])
-      thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
+      thumbnail = Image.open(StringIO(lch.get_thumbnail_from_xattr(file[0])))
+
     return ImageTk.PhotoImage(thumbnail)
 
   def selection_changed(self, event=None):
