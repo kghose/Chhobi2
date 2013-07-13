@@ -100,18 +100,19 @@ def write_xattr_metadata(file_list, meta_data):
         if keyword[0] == '-': orig_keywd_list.remove(keyword[1])
       xattr.setxattr(file, 'com.apple.metadata:kMDItemKeywords', biplist.writePlistToString(list(orig_keywd_list)))
 
-def get_thumbnail_from_xattr(file, tsize='150x150'):
+def get_thumbnail_from_xattr(file, tsize=150):
+  """Look for thumbnail in xattr or use ffmpeg to generate one (and store it in xattr).
+  ffmpeg command from http://stackoverflow.com/questions/14551102/with-ffmpeg-create-thumbnails-proportional-to-the-videos-ratio
+  e.g. ffmpeg -itsoffset -1 -i TestData/2013-06-29/MVI_0843.AVI -vframes 1 -filter:v scale="min(150\, iw):-1"  out.jpg
+  Note that list form of Popen takes care of the quoting - nothing special needs to be done.
+  """
   if 'chhobi2:thumbnail' in xattr.listxattr(file):
     return xattr.getxattr(file, 'chhobi2:thumbnail')
-  #Generate the thumbnail
   ftemp = 'chhobi2_thumb_temp.jpg'
-  p = Popen(['ffmpeg', '-loglevel', 'panic', '-i', file, '-ss', '00:00:0', '-f', 'image2', '-vframes', '1', '-s', tsize, ftemp])
-  p.wait() #This takes a finite amount of time
-  #and store it in the xattrs
+  Popen(['ffmpeg', '-loglevel', 'panic', '-itsoffset', '-1', '-i', file, '-vframes', '1', '-filter:v', 'scale=min({:d}\, iw):-1'.format(tsize), ftemp]).wait() #This takes a finite amount of time
   thumb_data = open(ftemp, 'rb').read()
   os.remove(ftemp) #Clean up after ourselves
   xattr.setxattr(file, 'chhobi2:thumbnail', thumb_data)
-  #And return it
   return thumb_data
 
 class CmdHist:
