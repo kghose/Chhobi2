@@ -3,7 +3,7 @@ A minimalist photo organizer for Mac
 
 ![Chhobi screen shot](https://raw.github.com/kghose/Chhobi2/gh-pages/images/screenshot001.png)
 
-## `Because photographers can be geeks too`
+## *Because photographers can be geeks too*
 
 Features
 ========
@@ -27,8 +27,44 @@ Features
 
 [Short screen cast](http://www.youtube.com/watch?v=l20VpopThz0)
 
+Installation
+============
+> The nature of this program makes it useful/appealing only to people with some knowledge of programming and using the commandline on macs.  Therefore I have not spent effort in making a nice package with all the dependencies etc. I'm listing the non-standard Python packages that Chhobi uses along with download links. Anybody with a moderate interest in computers should be able to get Chhobi up and running with these instructions. It should also be possible, with a little tweaking, to get this program running on Linux and Windows machines, but I have not tried it.
+
+Non-standard Python dependencies
+--------------------------------
+1. [PIL](http://stackoverflow.com/questions/9070074/how-to-install-pil-on-mac-os-x-10-7-2-lion) - needed for thumbnail display
+2. [xattr](https://pypi.python.org/pypi/xattr) - needed to write video metadata as Mac OS X extended attributes
+3. [biplist](https://bitbucket.org/wooster/biplist) - needed to write video metadata as Mac OS X extended attributes
+
+Non-standard command-line tools
+-------------------------------
+1. [exiftool](http://www.sno.phy.queensu.ca/~phil/exiftool/) - Needed to read and write exiv photo meatadata
+2. [ffmpeg](http://www.ffmpeg.org/download.html) - needed to generate display thumbnail for videos.
+
+Installation recipe
+-------------------
+> You should check for the latest versions of all software
+1. Install `exiftool` from the mac os [dmg](http://www.sno.phy.queensu.ca/~phil/exiftool/ExifTool-9.33.dmg)
+2. Install `ffmpeg` from the [zip file](http://ffmpegmac.net/resources/SnowLeopard_Lion_Mountain_Lion_13.05.2013.zip)
+3. Install PIL
+```
+curl -O -L http://effbot.org/media/downloads/Imaging-1.1.7.tar.gz
+tar -xzf Imaging-1.1.7.tar.gz
+cd Imaging-1.1.7
+python setup.py install --user
+```
+4. `pip install xattr --user` - Install xattr
+5. `pip install biplist --user` - Install biplist
+6. `git clone https://github.com/kghose/Chhobi2.git` - Get Chhobi2
+
+You can now start Chhobi by going into the download directory and typing
+
+`python guichhobi.py`
+
+
 Manual
-------
+======
 
 ```
 The GUI consists of five panels
@@ -116,6 +152,9 @@ http://www.gnu.org/licenses/gpl.html
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Program details
+===============
 
 
 
