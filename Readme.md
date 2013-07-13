@@ -45,6 +45,7 @@ Non-standard command-line tools
 Installation recipe
 -------------------
 > You should check for the latest versions of all software
+
 1. Install `exiftool` from the mac os [dmg](http://www.sno.phy.queensu.ca/~phil/exiftool/ExifTool-9.33.dmg)
 2. Install `ffmpeg` from the [zip file](http://ffmpegmac.net/resources/SnowLeopard_Lion_Mountain_Lion_13.05.2013.zip)
 3. Install PIL
@@ -54,6 +55,7 @@ tar -xzf Imaging-1.1.7.tar.gz
 cd Imaging-1.1.7
 python setup.py install --user
 ```
+
 4. `pip install xattr --user` - Install xattr
 5. `pip install biplist --user` - Install biplist
 6. `git clone https://github.com/kghose/Chhobi2.git` - Get Chhobi2
@@ -61,7 +63,6 @@ python setup.py install --user
 You can now start Chhobi by going into the download directory and typing
 
 `python guichhobi.py`
-
 
 Manual
 ======
