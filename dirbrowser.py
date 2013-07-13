@@ -12,9 +12,10 @@ class DirBrowse(tki.Frame):
    * Dummy leaves which have not been opened yet (required to show the expanding arrow) which have a
      ptype = 'dummy'
   """
-  def __init__(self, parent, dir_root=None, file_types=['jpg', 'tiff', 'gif', 'png', 'raw', 'nef', 'avi'], **options):
+  def __init__(self, parent, dir_root=None, photo_ext=['jpg', 'tiff', 'gif', 'png', 'raw', 'nef'], video_ext = ['avi'], **options):
     tki.Frame.__init__(self, parent)
-    self.file_types = file_types
+    self.photo_ext = photo_ext
+    self.video_ext = video_ext
     style = ttk.Style()
     style.map("my.Treeview",
       foreground=[('selected', 'yellow'), ('active', 'white')],
@@ -40,6 +41,23 @@ class DirBrowse(tki.Frame):
     self.fill_tree(node)
     self.set_initial_focus()
 
+  def file_type(self, p):
+    ptype = None
+    if os.path.isdir(p):
+      ptype = 'directory'
+    else: #We are a regular file
+      P = p.lower()
+      for ext in self.photo_ext:
+        if P.endswith(ext):
+          ptype = 'file:photo'
+          break
+      if ptype is None:
+        for ext in self.video_ext:
+          if P.endswith(ext):
+            ptype = 'file:video'
+            break
+    return ptype
+
   def fill_tree(self, node):
     if self.treeview.set(node, "type") != 'directory':
       return
@@ -47,14 +65,8 @@ class DirBrowse(tki.Frame):
     self.treeview.delete(*self.treeview.get_children(node)) # Delete the possibly 'dummy' node present.
     for p in os.listdir(path):
       p = os.path.join(path, p)
-      if os.path.isdir(p):
-        ptype = 'directory'
-      else: #We are a regular file
-        P = p.lower()
-        this_type = [str for str in self.file_types if P.endswith(str)]
-        if len(this_type) == 0: continue
-        ptype = 'file'
-
+      ptype = self.file_type(p)
+      if ptype is None: continue
       fname = os.path.split(p)[1]
       oid = self.treeview.insert(node, 'end', text=fname, values=[p, ptype], iid=p)
       if ptype == 'directory':
@@ -67,9 +79,9 @@ class DirBrowse(tki.Frame):
     #Special first node, instructs us to go back to the real listing
     ptype = 'title'
     ins('','end', text=title, values=['title', ptype])
-    ptype = 'file'
     for file in files:
-      fname = os.path.split(file)[1]
+      ptype = self.file_type(file)
+      #fname = os.path.split(file)[1]
       ins('','end', text=file, values=[file, ptype], iid=file)
     self.set_initial_focus()
 
@@ -79,10 +91,10 @@ class DirBrowse(tki.Frame):
   def file_selection(self):
     tv = self.treeview
     files = self.treeview.selection()
-    return [fi for fi in files if tv.item(fi)['values'][1]=='file']  #if os.path.isfile(fi)]
+    return [tv.item(fi)['values'] for fi in files if tv.item(fi)['values'][1][:4]=='file']
 
   def all_selection(self):
     #from IPython import embed; embed()
     tv = self.treeview
     files = self.treeview.selection()
-    return [fi for fi in files if (tv.item(fi)['values'][1]!='back to root') and (tv.item(fi)['values'][1]!='dummy')] #Only exclude the virtual listing head
+    return [tv.item(fi)['values'] for fi in files if (tv.item(fi)['values'][1]=='directory') or (tv.item(fi)['values'][1][:4]=='file')] #Only exclude the virtual listing head
