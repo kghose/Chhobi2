@@ -8,7 +8,7 @@ c) Create smartfolders based on search criteria
 import logging
 logger = logging.getLogger(__name__)
 from subprocess import Popen, PIPE, list2cmdline
-import re, collections, xattr, biplist
+import re, collections, xattr, biplist, os
 
 #The regexp for substituting mdfind syntax into our simplified syntax
 #http://docs.python.org/2/library/re.html
@@ -89,6 +89,20 @@ def write_xattr_metadata(file_list, meta_data):
         if keyword[0] == '+': orig_keywd_list.add(keyword[1])
         if keyword[0] == '-': orig_keywd_list.remove(keyword[1])
       xattr.setxattr(file, 'com.apple.metadata:kMDItemKeywords', biplist.writePlistToString(list(orig_keywd_list)))
+
+def get_thumbnail_from_xattr(file, tsize='150x150'):
+  if 'chhobi2:thumbnail' in xattr.listxattr(file):
+    return xattr.getxattr(file, 'chhobi2:thumbnail')
+  #Generate the thumbnail
+  ftemp = 'chhobi2_thumb_temp.jpg'
+  p = Popen(['ffmpeg', '-loglevel', 'panic', '-i', file, '-ss', '00:00:0', '-f', 'image2', '-vframes', '1', '-s', tsize, ftemp])
+  p.wait() #This takes a finite amount of time
+  #and store it in the xattrs
+  thumb_data = open(ftemp, 'rb').read()
+  os.remove(ftemp) #Clean up after ourselves
+  xattr.setxattr(file, 'chhobi2:thumbnail', thumb_data)
+  #And return it
+  return thumb_data
 
 class CmdHist:
   """A tiny class to implement a crude command history. We keep adding new commands to the deque. Older
