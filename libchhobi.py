@@ -72,7 +72,7 @@ def read_xattr_metadata(file_list):
   """For the given list of files read us the kMDItemDescription and kMDItemKeywords."""
   return [{
       'Caption-Abstract': biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemDescription')),
-      'keywords': biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords'))
+      'Keywords': biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords'))
     } for file in file_list]
 
 def write_xattr_metadata(file_list, meta_data):
