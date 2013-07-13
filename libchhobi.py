@@ -8,7 +8,7 @@ c) Create smartfolders based on search criteria
 import logging
 logger = logging.getLogger(__name__)
 from subprocess import Popen, PIPE, list2cmdline
-import re, collections
+import re, collections, xattr, biplist
 
 #The regexp for substituting mdfind syntax into our simplified syntax
 #http://docs.python.org/2/library/re.html
@@ -67,6 +67,28 @@ def quick_look_file(files, mode='-p'):
 
 def reveal_file_in_finder(files=[]):
   Popen(['open', '-R'] + files)
+
+def read_xattr_metadata(file_list):
+  """For the given list of files read us the kMDItemDescription and kMDItemKeywords."""
+  return [{
+      'Caption-Abstract': biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemDescription')),
+      'keywords': biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords'))
+    } for file in file_list]
+
+def write_xattr_metadata(file_list, meta_data):
+  if meta_data.has_key('caption'): #Simple, just replace all the captions
+    bipl = biplist.writePlistToString(meta_data['caption'])
+    for file in file_list:
+      xattr.setxattr(file, 'com.apple.metadata:kMDItemDescription', bipl)
+
+  if meta_data.has_key('keywords'): #A little more involved. For each file, load original keywords,
+                                   #then remove or add the relevant keywords
+    for file in file_list:
+      orig_keywd_list = set(biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords')))
+      for keyword in meta_data['keywords']:
+        if keyword[0] == '+': orig_keywd_list.add(keyword[1])
+        if keyword[0] == '-': orig_keywd_list.remove(keyword[1])
+      xattr.setxattr(file, 'com.apple.metadata:kMDItemKeywords', biplist.writePlistToString(list(orig_keywd_list)))
 
 class CmdHist:
   """A tiny class to implement a crude command history. We keep adding new commands to the deque. Older
