@@ -16,12 +16,14 @@ Features
 * Pseudo commandline interface: access all functions with short keystrokes
 
 ### Chhobi = [Python] + [Tkinter] + [exiftool] + [mdfind] + [PIL]
+(With a cameo appearance from [ffmpeg])
 
 [Python]: http://python.org
 [Tkinter]: http://docs.python.org/2/library/tkinter.html
 [exiftool]: http://www.sno.phy.queensu.ca/~phil/exiftool/exiftool_pod.html
 [mdfind]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/mdfind.1.html
 [PIL]: http://effbot.org/zone/pil-index.htm
+[ffmpeg]: http://www.ffmpeg.org/
 
 [Short screen cast](http://www.youtube.com/watch?v=l20VpopThz0)
 
@@ -119,7 +121,7 @@ http://www.gnu.org/licenses/gpl.html
 
 TODO
 ====
-- ( ) Handle video metadata
+- (x) Handle video metadata
 - ( ) Expand search parsing
 - (x) Selections/collections
 - (x) Resize and zip collection to send via mail
@@ -133,10 +135,40 @@ TODO
 Programming notes and Resources
 ===============================
 
+Mac OS X writing file metadata
+------------------------------
+[`xattr -wx com.apple.metadata:kMDItemKeywords <hexdumped plist> File`][macosmetadata]
+
+* you need to use -wx because the data needs to be in binary format
+* You need to preface the tag with `com.apple.metadata:` for Spotlight to index it (and for it to showup on Finder info)
+* The plist is in [binary format][biplist]
+* The [hexdump][binascii] is in the format that `xxd -p` gives which is straight hex and is what is obtained by binascii.b2a_hex(
+* Setting a plain text string by doing `xattr -x blah blah` will not work - the xattr will not be recognized by spotlight
+
+[macosmetadata]: http://stackoverflow.com/questions/8530825/mac-os-x-add-a-custom-meta-data-field-to-any-file
+[biplist]: https://github.com/wooster/biplist
+[binascii]: docs.python.org/2/library/binascii.html
+
+### Batteries included
+Interestingly, all this can be done from within Python, without going to the xattr, mdls and other tools for binary plists
+You just need the `xattr` and `biplist` modules.
+
+To read keywords you need to do
+
+`biplist.readPlistFromString(xattr.getxattr('TestData/2013-06-29/MVI_0843.AVI', 'com.apple.metadata:kMDItemKeywords'))`
+
+which returns the keywords as a list.
+
+You can set them by doing
+```
+pl = ['Cat','hat','mat']
+xattr.setxattr('TestData/2013-06-29/MVI_0843.AVI', 'com.apple.metadata:kMDItemKeywords', biplist.writePlistToString(pl))
+```
+
 Video metadata
 --------------
-Exif tool can read video metadata
-
+Exif tool can read video metadata but not write it. Chhobi simply writes comments and keywords in extended metadata,
+which is also indexed by spotlight, so this nicely solves our problem with video metadata.
 
 
 Creating Mac OS X bundle
