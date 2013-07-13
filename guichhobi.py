@@ -203,14 +203,14 @@ class App(object):
     self.cmd_win.focus_set()
 
   def get_thumbnail(self, file):
-    im_data = self.etool.get_thumbnail_image(file)
+    im_data = self.etool.get_thumbnail_image(file[0])
     if len(im_data):
       thumbnail = Image.open(StringIO(im_data))
     else:
-      logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file))
+      logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file[0]))
       #Slow process of generating thumbnail on the fly
-      if file.upper().endswith('AVI'): return self.chhobi_icon
-      thumbnail = Image.open(file)
+      if file[1]=='file:video': return self.chhobi_icon
+      thumbnail = Image.open(file[0])
       thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
     return ImageTk.PhotoImage(thumbnail)
 
@@ -253,13 +253,9 @@ class App(object):
 
     info_text = '\n'
     if len(exiv_data) == 1:
-      if exiv_data[0]['FileType'].lower() in ['avi']:
-        key_list = ['DateTimeOriginal', 'Duration', 'ImageSize']
-      else:
-        key_list = ['CreateDate', 'FNumber', 'ShutterSpeed', 'ISO', 'FocalLength', 'DOF','LensID','Model']
-      for k in key_list:
+      for k in ['CreateDate', 'FNumber', 'ShutterSpeed', 'ISO', 'FocalLength', 'DOF','LensID','Model']:
         if exiv_data[0].has_key(k):
-          info_text += k[:13].ljust(14) + ': ' + str(exiv_data[0][k]) + '\n'
+          info_text += k.ljust(14) + ': ' + str(exiv_data[0][k]) + '\n'
     else:
       info_text += '(Showing common info)'
     self.info_text.insert(tki.END, info_text)
@@ -358,7 +354,7 @@ class App(object):
     files = self.tab.active_widget.file_selection()#Only returns files
     l0 = len(self.pile)
     for f in files:
-      self.pile.add(f)
+      self.pile.add(f[0])
     l1 = len(self.pile)
     self.log_command('Added {:d} files to pile. '.format(l1-l0))
 
@@ -366,7 +362,7 @@ class App(object):
     files = self.tab.active_widget.file_selection()#Only returns files
     l0 = len(self.pile)
     for f in files:
-      self.pile.discard(f)
+      self.pile.discard(f[0])
     l1 = len(self.pile)
     self.log_command('Removed {:d} files from pile. '.format(l0-l1))
 
