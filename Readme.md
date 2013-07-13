@@ -119,6 +119,7 @@ http://www.gnu.org/licenses/gpl.html
 
 TODO
 ====
+- ( ) Handle video metadata
 - ( ) Expand search parsing
 - (x) Selections/collections
 - (x) Resize and zip collection to send via mail
