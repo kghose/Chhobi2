@@ -62,18 +62,25 @@ def execute_long(prog_args):
 
 def quick_look_file(files, mode='-p'):
   #mode can be -t or -p
-  cmd_args = ['qlmanage', mode] + files
-  return execute(cmd_args, blocking=False)
+  Popen(['open'] + files)
+  #cmd_args = ['qlmanage', mode] + files
+  #return execute(cmd_args, blocking=False)
 
 def reveal_file_in_finder(files=[]):
   Popen(['open', '-R'] + files)
 
 def read_xattr_metadata(file_list):
   """For the given list of files read us the kMDItemDescription and kMDItemKeywords."""
-  return [{
-      'Caption-Abstract': biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemDescription')),
-      'Keywords': biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords'))
-    } for file in file_list]
+  meta_data = []
+  for file in file_list:
+    md = {}
+    attrs = xattr.listxattr(file)
+    if 'com.apple.metadata:kMDItemDescription' in attrs:
+      md['Caption-Abstract'] = biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemDescription'))
+    if 'com.apple.metadata:kMDItemKeywords' in attrs:
+      md['Keywords'] = biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords'))
+    meta_data.append(md)
+  return meta_data
 
 def write_xattr_metadata(file_list, meta_data):
   if meta_data.has_key('caption'): #Simple, just replace all the captions
@@ -84,7 +91,10 @@ def write_xattr_metadata(file_list, meta_data):
   if meta_data.has_key('keywords'): #A little more involved. For each file, load original keywords,
                                    #then remove or add the relevant keywords
     for file in file_list:
-      orig_keywd_list = set(biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords')))
+      if 'com.apple.metadata:kMDItemKeywords' in xattr.listxattr(file):
+        orig_keywd_list = set(biplist.readPlistFromString(xattr.getxattr(file, 'com.apple.metadata:kMDItemKeywords')))
+      else:
+        orig_keywd_list = set([])
       for keyword in meta_data['keywords']:
         if keyword[0] == '+': orig_keywd_list.add(keyword[1])
         if keyword[0] == '-': orig_keywd_list.remove(keyword[1])
