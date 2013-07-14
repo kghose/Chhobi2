@@ -25,7 +25,7 @@ Features
 [PIL]: http://effbot.org/zone/pil-index.htm
 [ffmpeg]: http://www.ffmpeg.org/
 
-[Short screen cast](http://www.youtube.com/watch?v=l20VpopThz0)
+[Short screen cast](http://youtu.be/99QfEyQB5WQ)
 
 Installation
 ============
