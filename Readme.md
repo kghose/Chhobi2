@@ -64,6 +64,8 @@ You can now start Chhobi by going into the download directory and typing
 
 `python guichhobi.py`
 
+Click on the command window (the input box with white background) and press 'h' to get the manual.
+
 Manual
 ======
 
@@ -137,7 +139,7 @@ I think iPhoto is bloated, and any photo organizer concept I could come up with,
 
 License
 =======
-Chhobi is made available for download in the hope that the programs may be of some use. No claim is made that the code works and is free of bugs, but I would appreciate bug reports (kaushik.ghose@gmail.com)
+Chhobi is made available for download in the hope that it may be of some use. No claim is made that the code works and is free of bugs, but I would appreciate bug reports (iamkaushik.ghose@gmail.com: When you email me **remove the first three letters**)
 
 http://www.gnu.org/licenses/gpl.html
 
@@ -156,21 +158,30 @@ http://www.gnu.org/licenses/gpl.html
 
 Program details
 ===============
+The captions and keywords you enter are stored in the standard photo metadata itself. This means that they will show up in Finder, show up in Inspector, show up in spotlight and can be read by any exif compliant tool. They will survive transfers across file systems and operating systems. This is the beauty of standardized metadata. This is all possible because of Phil Harvy's wonderful exiftool command line program and its super awesome interactive mode, which allows you to perform multiple queries without having to call the program repeatedly.
 
+Exiftool does not handle captions and keywords for videos, however. I do not know if there is a standard for such user defined metadata for videos. I first toyed with the idea of using sidecar files, but this left a very bad taste in my mouth. I finally settled on using extended attributes to save the captions, keywords and even the thumbnail. This has the bonus that mdfind (and therefore Spotlight) indexes these attributes.
 
+Chhobi stores two pieces of information - your photo root and its geometry - in a simple text configuration file called chhobi2.cfg in your home directory.
+
+Chhobi runs exiftool in safe mode, which means your original images are always kept and captions and keywords are added in a copy of the original.
 
 TODO
 ====
+- ( ) Increase the video types handled
+- ( ) Command to force regenerate thumbnail
 - (x) Handle video metadata
 - ( ) Expand search parsing
 - (x) Selections/collections
 - (x) Resize and zip collection to send via mail
-- (x) (Won't do) Export queries as smart folders
+- ( ) Export queries as smart folders
 - (x) (silently generate thumbnail) Indicate when preview thumbnail is not available - autogenerate one
 - (x) Command history
 - ( ) Commands to change appearance
 - (x) Increase status bar time
 - (x) Show status when changing browser panes
+- ( ) Write how to do searches
+- ( ) Fix '=' vs '==' issue
 
 Programming notes and Resources
 ===============================
@@ -181,7 +192,7 @@ Mac OS X writing file metadata
 
 * you need to use -wx because the data needs to be in binary format
 * You need to preface the tag with `com.apple.metadata:` for Spotlight to index it (and for it to showup on Finder info)
-* The plist is in [binary format][biplist]
+* The plist needs to be in [binary format][biplist]
 * The [hexdump][binascii] is in the format that `xxd -p` gives which is straight hex and is what is obtained by binascii.b2a_hex(
 * Setting a plain text string by doing `xattr -x blah blah` will not work - the xattr will not be recognized by spotlight
 
