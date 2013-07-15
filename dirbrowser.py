@@ -12,7 +12,10 @@ class DirBrowse(tki.Frame):
    * Dummy leaves which have not been opened yet (required to show the expanding arrow) which have a
      ptype = 'dummy'
   """
-  def __init__(self, parent, dir_root=None, photo_ext=['jpg', 'tiff', 'gif', 'png', 'raw', 'nef'], video_ext = ['avi'], **options):
+  def __init__(self, parent, dir_root=None,
+               photo_ext=['jpg', 'tiff', 'gif', 'png', 'raw', 'nef'],
+               video_ext = ['avi', 'mov', 'm4v', 'mkv'],
+               **options):
     tki.Frame.__init__(self, parent)
     self.photo_ext = photo_ext
     self.video_ext = video_ext
