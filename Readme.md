@@ -158,9 +158,9 @@ http://www.gnu.org/licenses/gpl.html
 
 Program details
 ===============
-The captions and keywords you enter are stored in the standard photo metadata itself. This means that they will show up in Finder, show up in Inspector, show up in spotlight and can be read by any exif compliant tool. They will survive transfers across file systems and operating systems. This is the beauty of standardized metadata. This is all possible because of Phil Harvy's wonderful exiftool command line program and its super awesome interactive mode, which allows you to perform multiple queries without having to call the program repeatedly.
+The captions (exiftool: `Caption-Abstract`) and keywords (exiftool `keywords`) you enter are stored in the standard photo metadata itself. This means that they will show up in Finder, show up in Inspector, show up in spotlight and can be read by any exif compliant tool. They will survive transfers across file systems and operating systems. This is the beauty of standardized metadata. This is all possible because of Phil Harvy's wonderful exiftool command line program and its super awesome interactive mode, which allows you to perform multiple queries without having to call the program repeatedly.
 
-Exiftool does not handle captions and keywords for videos, however. I do not know if there is a standard for such user defined metadata for videos. I first toyed with the idea of using sidecar files, but this left a very bad taste in my mouth. I finally settled on using extended attributes to save the captions, keywords and even the thumbnail. This has the bonus that mdfind (and therefore Spotlight) indexes these attributes.
+Exiftool, however, does not handle captions and keywords for videos. I do not know if there is a standard for such user defined metadata for videos. I first toyed with the idea of using sidecar files, but this left a very bad taste in my mouth. I finally settled on using extended attributes to save the captions (`com.apple.metadata:kMDItemDescription`), keywords (`com.apple.metadata:kMDItemKeywords`) and even the thumbnail (`chhobi2:thumbnail`). This has the bonus that `mdfind` (and therefore Spotlight) indexes the caption and keywords.
 
 Chhobi stores two pieces of information - your photo root and its geometry - in a simple text configuration file called chhobi2.cfg in your home directory.
 
