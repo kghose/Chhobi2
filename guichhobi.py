@@ -41,6 +41,7 @@ Enter            - execute current command
 r                - Reveal the current files/folders in finder
 a                - add selected files to pile
 x                - remove selected files from pile (if they exist in pile)
+p                - open preview window
 h                - show help
 
 After typing the following commands you need to hit enter to execute
@@ -130,11 +131,13 @@ class App(object):
     self.pile = set([]) #We temporarily 'hold' files here
     self.cmd_history = lch.CmdHist(memory=20)
     self.showing_preview = False #If true, will update the preview image periodically
+    self.preview_delay = self.config.getint('DEFAULT', 'preview delay')
     self.tab.widget_list[0].set_dir_root(self.config.get('DEFAULT','root'))
 
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool and save configuration."""
     self.etool.close()
+    if self.showing_preview: self.hide_photo_preview_pane() #This will close the preview pane cleanly
     self.config.set('DEFAULT', 'geometry', self.root.geometry())
     with open(self.config_fname, 'wb') as configfile:
       self.config.write(configfile)
@@ -145,6 +148,8 @@ class App(object):
     self.config_default = {
         'root': './',
         'geometry': 'none',
+        'preview geometry': 'none',
+        'preview delay': '250'
     }
     self.config = ConfigParser.ConfigParser(self.config_default)
     self.config.read(self.config_fname)
@@ -254,7 +259,7 @@ class App(object):
       if self.showing_preview:
         if hasattr(self,'showing_after_id'):
           self.root.after_cancel(self.showing_after_id)
-        self.showing_after_id = self.root.after(250, self.update_photo_preview)
+        self.showing_after_id = self.root.after(self.preview_delay, self.update_photo_preview)
     else:
       self.info_text.delete(1.0, tki.END)
       self.thumbnail_label.config(image=self.chhobi_icon)
@@ -438,10 +443,16 @@ class App(object):
     self.preview_label = tki.Label(fr, bg='black')
     self.preview_label.pack(fill='both', expand=True)
     self.preview_pane.wm_protocol("WM_DELETE_WINDOW", self.hide_photo_preview_pane)
+    geom=self.config.get('DEFAULT', 'preview geometry')
+    if geom == 'none': geom = '500x500+20+20'
+    self.preview_pane.geometry(geom)
     self.update_photo_preview()
 
   def hide_photo_preview_pane(self):
+    if hasattr(self,'showing_after_id'):
+      self.root.after_cancel(self.showing_after_id)
     self.showing_preview = False
+    self.config.set('DEFAULT', 'preview geometry', self.preview_pane.geometry())
     self.preview_pane.destroy()
 
   def update_photo_preview(self):
@@ -449,7 +460,7 @@ class App(object):
     if len(files) == 0: return
     file = files[0]
     if file[1]=='file:video': return
-    size = (500, 500)
+    size = [int(x) for x in self.preview_pane.geometry().split('+')[0].split('x')]
     im = Image.open(file[0])
     im.thumbnail(size, Image.ANTIALIAS)
     photo_preview = ImageTk.PhotoImage(im)

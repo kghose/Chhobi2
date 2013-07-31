@@ -162,12 +162,15 @@ The captions (exiftool: `Caption-Abstract`) and keywords (exiftool `keywords`) y
 
 Exiftool, however, does not handle captions and keywords for videos. I do not know if there is a standard for such user defined metadata for videos. I first toyed with the idea of using sidecar files, but this left a very bad taste in my mouth. I finally settled on using extended attributes to save the captions (`com.apple.metadata:kMDItemDescription`), keywords (`com.apple.metadata:kMDItemKeywords`) and even the thumbnail (`chhobi2:thumbnail`). This has the bonus that `mdfind` (and therefore Spotlight) indexes the caption and keywords.
 
-Chhobi stores two pieces of information - your photo root and its geometry - in a simple text configuration file called chhobi2.cfg in your home directory.
+Chhobi stores two pieces of information - your photo root and its own geometry - in a simple text configuration file called chhobi2.cfg in your home directory.
 
 Chhobi runs exiftool in safe mode, which means your original images are always kept and captions and keywords are added in a copy of the original.
 
 TODO
 ====
+- (x) Have a quickshow window that shows a larger preview if we pause on a picture for a bit.
+- ( ) Add command to add photos to flikr
+- ( ) Fix '=' vs '==' issue
 - ( ) Increase the video types handled
 - ( ) Command to force regenerate thumbnail
 - (x) Handle video metadata
@@ -181,7 +184,7 @@ TODO
 - (x) Increase status bar time
 - (x) Show status when changing browser panes
 - ( ) Write how to do searches
-- ( ) Fix '=' vs '==' issue
+- ( ) Add a commandline option to reset geometry
 
 Programming notes and Resources
 ===============================
