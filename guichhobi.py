@@ -124,11 +124,12 @@ class App(object):
     self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
     self.cmd_state = 'Idle'
-    self.one_key_cmds = ['1', '2', '3', 'r', 'a', 'x', 'h']
+    self.one_key_cmds = ['1', '2', '3', 'r', 'a', 'x', 'h', 'p']
     self.command_prefix = ['d', 'c', 'k', 's', 'z']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
     self.pile = set([]) #We temporarily 'hold' files here
     self.cmd_history = lch.CmdHist(memory=20)
+    self.showing_preview = False #If true, will update the preview image periodically
     self.tab.widget_list[0].set_dir_root(self.config.get('DEFAULT','root'))
 
   def cleanup_on_exit(self):
@@ -249,6 +250,11 @@ class App(object):
 
       exiv_data = self.etool.get_metadata_for_files(files)
       self.display_exiv_info(exiv_data)
+
+      if self.showing_preview:
+        if hasattr(self,'showing_after_id'):
+          self.root.after_cancel(self.showing_after_id)
+        self.showing_after_id = self.root.after(250, self.update_photo_preview)
     else:
       self.info_text.delete(1.0, tki.END)
       self.thumbnail_label.config(image=self.chhobi_icon)
@@ -297,6 +303,8 @@ class App(object):
       self.add_selected_to_pile()
     elif chr == 'x':
       self.remove_selected_from_pile()
+    elif chr == 'p':
+      self.show_photo_preview_pane()
     elif chr == 'h':
       self.show_help()
 
@@ -419,6 +427,34 @@ class App(object):
       im.thumbnail(size, Image.ANTIALIAS)
       im.save(outfile, 'JPEG')
     lch.reveal_file_in_finder([out_dir])
+
+  def show_photo_preview_pane(self):
+    if self.showing_preview: return
+    self.showing_preview = True
+    self.preview_pane = tki.Toplevel()
+    self.preview_pane.title('Photo preview')
+    fr = tki.Frame(self.preview_pane, bg='black')
+    fr.pack(fill='both', expand=True)
+    self.preview_label = tki.Label(fr, bg='black')
+    self.preview_label.pack(fill='both', expand=True)
+    self.preview_pane.wm_protocol("WM_DELETE_WINDOW", self.hide_photo_preview_pane)
+    self.update_photo_preview()
+
+  def hide_photo_preview_pane(self):
+    self.showing_preview = False
+    self.preview_pane.destroy()
+
+  def update_photo_preview(self):
+    files = self.tab.active_widget.file_selection()
+    if len(files) == 0: return
+    file = files[0]
+    if file[1]=='file:video': return
+    size = (500, 500)
+    im = Image.open(file[0])
+    im.thumbnail(size, Image.ANTIALIAS)
+    photo_preview = ImageTk.PhotoImage(im)
+    self.preview_label.config(image=photo_preview)
+    self.preview_label.image = photo_preview #Keep a reference
 
   def show_help(self):
     top = tki.Toplevel()
