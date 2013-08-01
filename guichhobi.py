@@ -121,17 +121,9 @@ class App(object):
     self.root = tki.Tk()
     self.root.wm_title('Chhobi2')
     self.load_prefs()
+    self.init_vars()
     self.setup_window()
-    self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
     self.etool = exiftool.PersistentExifTool()
-    self.cmd_state = 'Idle'
-    self.one_key_cmds = ['1', '2', '3', 'r', 'a', 'x', 'h', 'p']
-    self.command_prefix = ['d', 'c', 'k', 's', 'z']
-    #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
-    self.pile = set([]) #We temporarily 'hold' files here
-    self.cmd_history = lch.CmdHist(memory=20)
-    self.showing_preview = False #If true, will update the preview image periodically
-    self.preview_delay = self.config.getint('DEFAULT', 'preview delay')
     self.tab.widget_list[0].set_dir_root(self.config.get('DEFAULT','root'))
 
   def cleanup_on_exit(self):
@@ -153,6 +145,16 @@ class App(object):
     }
     self.config = ConfigParser.ConfigParser(self.config_default)
     self.config.read(self.config_fname)
+
+  def init_vars(self):
+    self.cmd_state = 'Idle'
+    self.one_key_cmds = ['1', '2', '3', 'r', 'a', 'x', 'h', 'p']
+    self.command_prefix = ['d', 'c', 'k', 's', 'z']
+    #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
+    self.pile = set([]) #We temporarily 'hold' files here
+    self.cmd_history = lch.CmdHist(memory=20)
+    self.showing_preview = False #If true, will update the preview image periodically
+    self.preview_delay = self.config.getint('DEFAULT', 'preview delay')
 
 #dir_root=self.config.get('DEFAULT','root')
   def setup_window(self):
@@ -191,6 +193,9 @@ class App(object):
     geom=self.config.get('DEFAULT', 'geometry')
     if geom != 'none':
       self.root.geometry(geom)
+
+    self.root.wm_protocol("WM_DELETE_WINDOW", self.cleanup_on_exit)
+
 
   def setup_info_text(self, fr):
     """Info window set up is a little complicated."""
