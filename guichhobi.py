@@ -446,7 +446,10 @@ class App(object):
     geom=self.config.get('DEFAULT', 'preview geometry')
     if geom == 'none': geom = '500x500+20+20'
     self.preview_pane.geometry(geom)
+    self.preview_pane.update_idletasks()
+    #Otherwise the geometry does not get set and our first image is wrong size (0) when we call update_photo_preview
     self.update_photo_preview()
+    self.cmd_win.grab_set() #Want to keep focus in command window
 
   def hide_photo_preview_pane(self):
     if hasattr(self,'showing_after_id'):
