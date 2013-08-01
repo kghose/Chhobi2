@@ -129,7 +129,7 @@ class App(object):
   def cleanup_on_exit(self):
     """Needed to shutdown the exiftool and save configuration."""
     self.etool.close()
-    if self.showing_preview: self.hide_photo_preview_pane() #This will close the preview pane cleanly
+    if self.showing_preview: self.hide_photo_preview_pane() #This will close the preview pane cleanly (saving geom etc.)
     self.config.set('DEFAULT', 'geometry', self.root.geometry())
     with open(self.config_fname, 'wb') as configfile:
       self.config.write(configfile)
@@ -156,7 +156,6 @@ class App(object):
     self.showing_preview = False #If true, will update the preview image periodically
     self.preview_delay = self.config.getint('DEFAULT', 'preview delay')
 
-#dir_root=self.config.get('DEFAULT','root')
   def setup_window(self):
     def add_dir_browse(parent):
       dir_win = dirb.DirBrowse(parent, bd=0)
@@ -454,7 +453,7 @@ class App(object):
     self.preview_pane.update_idletasks()
     #Otherwise the geometry does not get set and our first image is wrong size (0) when we call update_photo_preview
     self.update_photo_preview()
-    self.cmd_win.grab_set() #Want to keep focus in command window
+    self.cmd_win.focus_force() #Want to keep focus in command window
 
   def hide_photo_preview_pane(self):
     if hasattr(self,'showing_after_id'):
