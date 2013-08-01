@@ -168,6 +168,7 @@ Chhobi runs exiftool in safe mode, which means your original images are always k
 
 TODO
 ====
+- ( ) Bugfix: some kind of bug involving keyword removal
 - (x) Have a quickshow window that shows a larger preview if we pause on a picture for a bit.
 - ( ) Add command to add photos to flikr
 - ( ) Fix '=' vs '==' issue
