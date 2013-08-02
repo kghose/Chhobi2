@@ -113,6 +113,7 @@ Enter            - execute current command
 r                - Reveal the current files/folders in finder
 a                - add selected files to pile
 x                - remove selected files from pile (if they exist in pile)
+p                - open preview window
 h                - show help
 
 After typing the following commands you need to hit enter to execute
@@ -124,6 +125,26 @@ s <query string> - perform this mdfinder query and set the file browser to this 
 cp               - clear all images from pile
 z WxH            - resize all images in pile to fit within H pixels high and W pixels wide,
                    put them in a temporary directory and reveal the directory
+
+
+Search query syntax:
+Chhobi's search is a very thin layer on top of mdfind. The syntax for mdfind is found at
+
+http://developer.apple.com/library/mac/#documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html#//apple_ref/doc/uid/TP40001849-CJBEJBHH
+
+Chhobi gives you several shortcuts to the rather long mdfind names relevant to searching through your photos/movies
+
+  k -> keywords (kMDItemKeywords)
+  c -> caption (kMDItemDescription)
+  d -> photo date (kMDItemContentCreationDate)
+  f -> f-stop (kMDItemFNumber)
+  t -> exposure time (kMDItemExposureTimeSeconds)
+  l -> focal length (kMDItemFocalLength)
+
+Some examples of searches are
+
+s k='rose'  -> find photos with the keyword rose
+s c='*fireworks*'  -> find photos with fireworks in the caption anywhere
 ```
 
 The user manual is accessed by running the program with the -h option
@@ -168,6 +189,7 @@ Chhobi runs exiftool in safe mode, which means your original images are always k
 
 TODO
 ====
+- ( ) Handle rotations
 - ( ) Bugfix: some kind of bug involving keyword removal
 - (x) Have a quickshow window that shows a larger preview if we pause on a picture for a bit.
 - ( ) Add command to add photos to flikr

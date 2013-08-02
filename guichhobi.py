@@ -71,8 +71,8 @@ Chhobi gives you several shortcuts to the rather long mdfind names relevant to s
 
 Some examples of searches are
 
-s k=='rose'  -> find photos with the keyword rose
-
+s k='rose'  -> find photos with the keyword rose
+s c='*fireworks*'  -> find photos with fireworks in the caption anywhere
 """
 import logging
 logger = logging.getLogger(__name__)
@@ -271,10 +271,6 @@ class App(object):
   def display_exiv_info(self, exiv_data):
     cap_set = set([exiv_data[0].get('Caption-Abstract', '')])
     key_set = set([ky for ky in exiv_data[0].get('Keywords', [])])
-
-    logger.debug(cap_set)
-    logger.debug(key_set)
-
     for n in range(1,len(exiv_data)):
       cap_set &= set([exiv_data[n].get('Caption-Abstract', '')])
       key_set &= set([ky for ky in exiv_data[n].get('Keywords', [])])
