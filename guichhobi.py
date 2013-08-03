@@ -82,6 +82,12 @@ import libchhobi as lch, dirbrowser as dirb, exiftool
 from cStringIO import StringIO
 from os.path import join, expanduser
 
+def orient_image(img, orientation):
+  if orientation == 3: img = img.transpose(Image.ROTATE_180)
+  elif orientation == 6: img = img.transpose(Image.ROTATE_270)
+  elif orientation == 8: img = img.transpose(Image.ROTATE_90)
+  return img
+
 class MultiPanel():
   """We want to setup a pseudo tabbed widget with three treeviews. One showing the disk, one the pile and
   the third the search results. All three treeviews should be hooked up to exactly the same event handlers
@@ -232,38 +238,36 @@ class App(object):
     dir_win.treeview.event_generate('<Key>', keycode=event.keycode)
     self.cmd_win.focus_set()
 
-  def get_thumbnail(self, file):
-    if file[1]=='file:photo':
-      im_data = self.etool.get_thumbnail_image(file[0])
+  def get_thumbnail(self, finfo, orientation):
+    if finfo[1]=='file:photo':
+      im_data = self.etool.get_thumbnail_image(finfo[0])
       if len(im_data):
         thumbnail = Image.open(StringIO(im_data))
       else:
-        logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(file[0]))
+        logger.debug('No embedded thumnail for {:s}. Generating on the fly.'.format(finfo[0]))
         #Slow process of generating thumbnail on the fly
-        if file[1]=='file:video': return self.chhobi_icon
-        thumbnail = Image.open(file[0])
+        if finfo[1]=='file:video': return self.chhobi_icon
+        thumbnail = Image.open(finfo[0])
         thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
+      thumbnail = orient_image(thumbnail, orientation)
     else:
-      thumbnail = Image.open(StringIO(lch.get_thumbnail_from_xattr(file[0])))
-
+      thumbnail = Image.open(StringIO(lch.get_thumbnail_from_xattr(finfo[0])))
     return ImageTk.PhotoImage(thumbnail)
 
   def selection_changed(self, event=None):
     files = self.tab.active_widget.file_selection()
     logger.debug(files)
-
     if len(files):
-      photo = self.get_thumbnail(files[0])
-      self.thumbnail_label.config(image=photo)
-      self.thumbnail_label.image = photo #Keep a reference
-
       exiv_data = self.etool.get_metadata_for_files(files)
       self.display_exiv_info(exiv_data)
-
+      orn = exiv_data[0].get('Orientation',None)
+      photo = self.get_thumbnail(files[0], orn)
+      self.thumbnail_label.config(image=photo)
+      self.thumbnail_label.image = photo #Keep a reference
       if self.showing_preview:
         if hasattr(self,'showing_after_id'):
           self.root.after_cancel(self.showing_after_id)
-        self.showing_after_id = self.root.after(self.preview_delay, self.update_photo_preview)
+        self.showing_after_id = self.root.after(self.preview_delay, self.update_photo_preview, files[0], orn)
     else:
       self.info_text.delete(1.0, tki.END)
       self.thumbnail_label.config(image=self.chhobi_icon)
@@ -448,7 +452,13 @@ class App(object):
     self.preview_pane.geometry(geom)
     self.preview_pane.update_idletasks()
     #Otherwise the geometry does not get set and our first image is wrong size (0) when we call update_photo_preview
-    self.update_photo_preview()
+
+    files = self.tab.active_widget.file_selection()
+    if len(files) > 0:
+      exiv_data = self.etool.get_metadata_for_files([files[0]])
+      orn = exiv_data[0].get('Orientation',None)
+      self.update_photo_preview(files[0], orn)
+
     self.cmd_win.focus_force() #Want to keep focus in command window
 
   def hide_photo_preview_pane(self):
@@ -458,15 +468,12 @@ class App(object):
     self.config.set('DEFAULT', 'preview geometry', self.preview_pane.geometry())
     self.preview_pane.destroy()
 
-  def update_photo_preview(self):
-    files = self.tab.active_widget.file_selection()
-    if len(files) == 0: return
-    file = files[0]
-    if file[1]=='file:video': return
+  def update_photo_preview(self, finfo, orientation):
+    if finfo[1]=='file:video': return
     size = [int(x) for x in self.preview_pane.geometry().split('+')[0].split('x')]
-    im = Image.open(file[0])
+    im = Image.open(finfo[0])
     im.thumbnail(size, Image.ANTIALIAS)
-    photo_preview = ImageTk.PhotoImage(im)
+    photo_preview = ImageTk.PhotoImage(orient_image(im, orientation))
     self.preview_label.config(image=photo_preview)
     self.preview_label.image = photo_preview #Keep a reference
 

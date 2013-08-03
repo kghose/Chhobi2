@@ -12,7 +12,7 @@ import re, collections, xattr, biplist, os
 
 #The regexp for substituting mdfind syntax into our simplified syntax
 #http://docs.python.org/2/library/re.html
-query_re = re.compile('(\w*?) *(==|!=|<|>|<=|>=)')
+query_re = re.compile('(\w*?) *(=|==|!=|<|>|<=|>=)')
 
 #Maps the human readable query item into a mdfinder item
 query_map = {

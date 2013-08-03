@@ -67,7 +67,7 @@ class PersistentExifTool(object):
     """Get standard metadata from the files. movie_exts are extensions that indicate file is a movie"""
     photo_files = [fi[0] for fi in file_list if fi[1]=='file:photo']
     video_files = [fi[0] for fi in file_list if fi[1]=='file:video']
-    exiv_tags = ['-FileType', '-CreateDate', '-model', '-lensid', '-focallength', '-Dof', '-ISO', '-ShutterSpeed', '-fnumber','-Duration', '-Caption-Abstract', '-keywords']
+    exiv_tags = ['-FileType', '-CreateDate', '-model', '-lensid', '-focallength', '-Dof', '-ISO', '-ShutterSpeed', '-fnumber','-Duration', '-Caption-Abstract', '-keywords', '-Orientation#'] #Hash symbol gives us number
     base_query = '\n'.join(exiv_tags)
     query = '-j\n' #To get JSON back
     for file in photo_files:
