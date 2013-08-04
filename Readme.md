@@ -68,11 +68,8 @@ Click on the command window (the input box with white background) and press 'h' 
 
 Manual
 ======
-The user manual is accessed by running the program with the -h option
+The user manual is accessed by running the program with the -h option `python guichhobi.py -h` or pressing the 'h' key in the command window.
 
-    python guichhobi.py -h
-
-or pressing the 'h' key in the command window
 You can find the manual as part of the docstring of the main file ([guichhobi.py][manual])
 
 [manual]: http://raw.github.com/kghose/Chhobi2/master/guichhobi.py
