@@ -68,90 +68,14 @@ Click on the command window (the input box with white background) and press 'h' 
 
 Manual
 ======
-
-```
-The GUI consists of five panels
------------------------
-|                     |
-|         A           |
-|                     |
-|---------------------|
-|         |           |
-|    B    |     C     |
-|         |           |
-|---------------------|
-|         D           |
-|---------------------|
-|         E           |
------------------------
-
-A is the directory/file list pane. There are three panes, visible one at a time and switched using the
-  keys 1,2,3
-   1 - the disk browser,
-   2 - search results and
-   3 - the pile
-B is the thumbnail pane
-C is the info pane where you can see the photo comments, keywords
-  and a bunch of EXIF data
-D is the command line. Hitting enter executes the query
-E is the status window, showing messages etc.
-
-Starting the program with the -h option will print this usage manual
-Starting the program with the -d option will print debugger messages to the console
-
-Commands:
-
-Esc              - cancel current command
-Enter            - execute current command
-[arrow keys]     - navigate in file browser (even when in command window). Once you start a command
-                   your arrow keys work as normal cursor keys in the command window. When in command mode
-                   up and down arrow keys step through the history
-[right cursor]   - If an image file is selected in file browser, will open the file in a quick view window
-1                - show disk browser window
-2                - show search window
-3                - update and show pile
-r                - Reveal the current files/folders in finder
-a                - add selected files to pile
-x                - remove selected files from pile (if they exist in pile)
-p                - open preview window
-h                - show help
-
-After typing the following commands you need to hit enter to execute
-d <posix path>   - set the root of the file browser to this. Last set is remembered across sessions
-c <text>         - set this text as picture caption.
-k <keyword>      - add this keyword to the current file/selection
-k- <keyword>     - remove this keyword from the current file/selection
-s <query string> - perform this mdfinder query and set the file browser to this virtual listing
-cp               - clear all images from pile
-z WxH            - resize all images in pile to fit within H pixels high and W pixels wide,
-                   put them in a temporary directory and reveal the directory
-
-
-Search query syntax:
-Chhobi's search is a very thin layer on top of mdfind. The syntax for mdfind is found at
-
-http://developer.apple.com/library/mac/#documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html#//apple_ref/doc/uid/TP40001849-CJBEJBHH
-
-Chhobi gives you several shortcuts to the rather long mdfind names relevant to searching through your photos/movies
-
-  k -> keywords (kMDItemKeywords)
-  c -> caption (kMDItemDescription)
-  d -> photo date (kMDItemContentCreationDate)
-  f -> f-stop (kMDItemFNumber)
-  t -> exposure time (kMDItemExposureTimeSeconds)
-  l -> focal length (kMDItemFocalLength)
-
-Some examples of searches are
-
-s k='rose'  -> find photos with the keyword rose
-s c='*fireworks*'  -> find photos with fireworks in the caption anywhere
-```
-
 The user manual is accessed by running the program with the -h option
 
     python guichhobi.py -h
 
 or pressing the 'h' key in the command window
+You can find the manual as part of the docstring of the main file ([guichhobi.py][manual])
+
+[manual]: http://raw.github.com/kghose/Chhobi2/master/guichhobi.py
 
 Rationale
 =========
