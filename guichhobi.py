@@ -492,7 +492,8 @@ class App(object):
   def show_help(self):
     top = tki.Toplevel()
     top.title("Help")
-    msg = tki.Message(top, text=__doc__, font=('consolas', 11))
+    msg = tki.Text(top, font=('consolas', 11), wrap=tki.WORD)
+    msg.insert(tki.END, __doc__)
     msg.pack()
     self.log_command('Showing help')
 
