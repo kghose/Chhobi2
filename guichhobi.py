@@ -84,10 +84,12 @@ import libchhobi as lch, dirbrowser as dirb, exiftool
 from cStringIO import StringIO
 from os.path import join, expanduser
 
-def orient_image(img, orientation):
+def resize_image(img, size, orientation):
+  """The transpose is a fairly cheap operation, so we don't bother to resize before we transpose."""
   if orientation == 3: img = img.transpose(Image.ROTATE_180)
   elif orientation == 6: img = img.transpose(Image.ROTATE_270)
   elif orientation == 8: img = img.transpose(Image.ROTATE_90)
+  img.thumbnail(size, Image.ANTIALIAS)
   return img
 
 class MultiPanel():
@@ -250,8 +252,9 @@ class App(object):
         #Slow process of generating thumbnail on the fly
         if finfo[1]=='file:video': return self.chhobi_icon
         thumbnail = Image.open(finfo[0])
-        thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
-      thumbnail = orient_image(thumbnail, orientation)
+      thumbnail = resize_image(thumbnail, (150, 150), orientation)
+      #thumbnail.thumbnail((150,150), Image.ANTIALIAS) #Probably slows us down?
+      #thumbnail = orient_image(thumbnail, orientation)
     else:
       thumbnail = Image.open(StringIO(lch.get_thumbnail_from_xattr(finfo[0])))
     return ImageTk.PhotoImage(thumbnail)
@@ -477,9 +480,7 @@ class App(object):
   def update_photo_preview(self, finfo, orientation):
     if finfo[1]=='file:video': return
     size = [int(x) for x in self.preview_pane.geometry().split('+')[0].split('x')]
-    im = Image.open(finfo[0])
-    im.thumbnail(size, Image.ANTIALIAS)
-    photo_preview = ImageTk.PhotoImage(orient_image(im, orientation))
+    photo_preview = ImageTk.PhotoImage(resize_image(Image.open(finfo[0]), size, orientation))
     self.preview_label.config(image=photo_preview)
     self.preview_label.image = photo_preview #Keep a reference
 
