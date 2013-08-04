@@ -189,6 +189,7 @@ Chhobi runs exiftool in safe mode, which means your original images are always k
 
 TODO
 ====
+- ( ) Fix logical bug related to preview and rotations (need to do some pre computations related to final image aspect)
 - (x) Handle rotations
 - ( ) Bugfix: some kind of bug involving keyword removal
 - (x) Have a quickshow window that shows a larger preview if we pause on a picture for a bit.

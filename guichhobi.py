@@ -42,6 +42,8 @@ r                - Reveal the current files/folders in finder
 a                - add selected files to pile
 x                - remove selected files from pile (if they exist in pile)
 p                - open preview window
+[                - rotate image right
+]                - rotate image left
 h                - show help
 
 After typing the following commands you need to hit enter to execute
@@ -154,7 +156,7 @@ class App(object):
 
   def init_vars(self):
     self.cmd_state = 'Idle'
-    self.one_key_cmds = ['1', '2', '3', 'r', 'a', 'x', 'h', 'p']
+    self.one_key_cmds = ['1', '2', '3', 'r', 'a', 'x', 'h', 'p', '[', ']']
     self.command_prefix = ['d', 'c', 'k', 's', 'z']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
     self.pile = set([]) #We temporarily 'hold' files here
@@ -314,6 +316,10 @@ class App(object):
       self.remove_selected_from_pile()
     elif chr == 'p':
       self.show_photo_preview_pane()
+    elif chr == '[':
+      self.rotate_selection(dir='ccw')
+    elif chr == ']':
+      self.rotate_selection(dir='cw')
     elif chr == 'h':
       self.show_help()
 
@@ -476,6 +482,11 @@ class App(object):
     photo_preview = ImageTk.PhotoImage(orient_image(im, orientation))
     self.preview_label.config(image=photo_preview)
     self.preview_label.image = photo_preview #Keep a reference
+
+  def rotate_selection(self, dir):
+    files = self.tab.active_widget.file_selection()
+    self.etool.rotate_images(files, dir)
+    self.selection_changed()
 
   def show_help(self):
     top = tki.Toplevel()

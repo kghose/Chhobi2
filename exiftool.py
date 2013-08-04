@@ -84,7 +84,7 @@ class PersistentExifTool(object):
 
   def set_metadata_for_files(self, file_list, meta_data):
     """Set selected metadata for the files. If keywords are present they are passed in as a list of tuples
-     containing a plus or minus sign indicating if the keyword are to be added or removed and the keyword itself
+     containing a plus or minus sign indicating if the keyword are to be added or removed and the keyword itself.
     """
     photo_files = [fi[0] for fi in file_list if fi[1]=='file:photo']
     video_files = [fi[0] for fi in file_list if fi[1]=='file:video']
@@ -98,6 +98,40 @@ class PersistentExifTool(object):
         query += '-keywords{:s}={:s}\n'.format(keyword[0],keyword[1])
     self.execute(query, expecting_response=False)
     lch.write_xattr_metadata(video_files, meta_data)
+
+  def rotate_images(self, file_list, dir):
+    """Rotation gets its own function because we need to set the orientation value based on the original value for
+    each image, and do this separately.
+    Rotating image (from the nice diagram at http://sylvana.net/jpegcrop/exif_orientation.html
+    Rotating CW: (original -> new)
+      1 -> 6
+      6 -> 3
+      3 -> 8
+      8 -> 1
+    Rotating CCW:
+      1 -> 8
+      8 -> 3
+      3 -> 6
+      6 -> 1"""
+    rotate_dict = {
+      'cw': {
+        1: 6,
+        6: 3,
+        3: 8,
+        8: 1
+      },
+      'ccw': {
+        1: 8,
+        8: 3,
+        3: 6,
+        6: 1
+      }
+    }
+    photo_files = [fi for fi in file_list if fi[1]=='file:photo']
+    meta_data = self.get_metadata_for_files(photo_files)
+    for fi,md in zip(photo_files, meta_data):
+      query = '{:s}\n-Orientation#={:d}\n'.format(fi[0],rotate_dict[dir][md['Orientation']])
+      self.execute(query, expecting_response=False)
 
   def get_preview_image(self, file):
     """Return a binary string corresponding to the preview image."""
