@@ -42,8 +42,8 @@ r                - Reveal the current files/folders in finder
 a                - add selected files to pile
 x                - remove selected files from pile (if they exist in pile)
 p                - open preview window
-[                - rotate image right
-]                - rotate image left
+[                - rotate image CCW (left)
+]                - rotate image CW (right)
 h                - show help
 
 After typing the following commands you need to hit enter to execute
