@@ -149,8 +149,16 @@ class FlickrAPI(object):
     self.set_state(oauth_token=oauth_token, oauth_token_secret=oauth_token_secret)
 
   def set_state(self, api_key=None, api_secret=None, oauth_token=None, oauth_token_secret=None):
-    if api_key is not None: self.api_key = api_key
-    if api_secret is not None: self.api_secret = api_secret
+    if api_key is not None:
+      self.api_key = api_key
+      self.oauth_token = None
+      self.oauth_token_secret = None
+      self.token = None
+    if api_secret is not None:
+      self.api_secret = api_secret
+      self.oauth_token = None
+      self.oauth_token_secret = None
+      self.token = None
     if oauth_token is not None: self.oauth_token = oauth_token
     if oauth_token_secret is not None: self.oauth_token_secret = oauth_token_secret
 
@@ -405,7 +413,7 @@ class Fup(FlickrAPI):
     2 http://www.flickr.com/groups/api/discuss/72157630326883668/
     """
     self.callback_url='oob'
-    auth_props = self.get_authentication_tokens()
+    auth_props = self.get_authentication_tokens(perms='write')
     auth_url = auth_props['auth_url']
     webbrowser.open(auth_url, new=new)
     logger.debug(auth_props)
