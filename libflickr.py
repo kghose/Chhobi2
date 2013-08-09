@@ -1,40 +1,15 @@
-"""This module handles the authentication and uploading of images to flickr.
-
+"""This module handles Flickr authentication and uploading of images to flickr.
 The functions here do not do any storing of app key, app secret, oauth token, secret etc. The main GUI handles that.
-
-This can act as a stand alone commandline invoked photo uploader for flickr. It includes methods that will help with the
-authorization process. The commandline uploader displays
-
-Uses python-flickr from https://github.com/michaelhelmick/python-flickr. Since python-flickr is so user friendly
-(just one file!!) I've added this to the tree as a git submodule using
-git submodule add git://github.com/michaelhelmick/python-flickr.git Flickr
-
-Some notes about Flickr.
-
-Go to Explore->App garden to see your apps/apps you have given permission to.
+The core code is lifted from https://github.com/michaelhelmick/python-flickr and adapted for our use. I started with
+version 0.3.0
 """
 import logging
 logger = logging.getLogger(__name__)
 import webbrowser, threading
 
-'''
-This code is from https://github.com/michaelhelmick/python-flickr
-For Flickr API documentation, visit: http://www.flickr.com/services/api/
-'''
-
-__author__ = 'Mike Helmick <mikehelmick@me.com>'
-__version__ = '0.3.0'
-
-import urllib
-import urllib2
-import mimetypes
-import mimetools
-import codecs
+import urllib, urllib2, mimetypes, mimetools, codecs, httplib2
 from io import BytesIO
-
-import httplib2
 import oauth2 as oauth
-
 
 try:
   from urlparse import parse_qsl
@@ -50,8 +25,7 @@ except ImportError:
     try:
       from django.utils import simplejson as json
     except ImportError:
-      raise ImportError('A json library is required to use this python library. Lol, yay for being verbose. ;)')
-
+      raise ImportError('A json library is required to use this python library.')
 
 # We need to import a XML Parser because Flickr doesn't return JSON for photo uploads -_-
 try:
@@ -77,7 +51,6 @@ except ImportError:
 
 writer = codecs.lookup('utf-8')[3]
 
-
 def get_content_type(filename):
   return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
@@ -93,10 +66,7 @@ def iter_fields(fields):
 
 
 class FlickrAPIError(Exception):
-  """ Generic error class, catch-all for most Tumblpy issues.
-
-      from Tumblpy import FlickrAPIError, FlickrAuthError
-  """
+  """ Generic catch-all error class"""
   def __init__(self, msg, error_code=None):
     self.msg = msg
     self.code = error_code
@@ -118,7 +88,9 @@ class FlickrAuthError(FlickrAPIError):
 
 
 class FlickrAPI(object):
-  def __init__(self, api_key=None, api_secret=None, oauth_token=None, oauth_token_secret=None, callback_url=None, headers=None, client_args=None):
+  def __init__(self, api_key=None, api_secret=None,
+               oauth_token=None, oauth_token_secret=None,
+               callback_url=None, headers=None, client_args=None):
     self.api_key = api_key
     self.api_secret = api_secret
     self.callback_url = callback_url
@@ -143,12 +115,12 @@ class FlickrAPI(object):
     self.client_args = client_args or {}
 
     if not api_key or not api_secret:
-      #raise FlickrAPIError('Please supply an api_key and api_secret.')
       return
 
     self.set_state(oauth_token=oauth_token, oauth_token_secret=oauth_token_secret)
 
   def set_state(self, api_key=None, api_secret=None, oauth_token=None, oauth_token_secret=None):
+    """Update auth internals as new information comes in."""
     if api_key is not None:
       self.api_key = api_key
       self.oauth_token = None
@@ -428,15 +400,19 @@ class Fup(FlickrAPI):
 
   def upload_files(self, fnames, callback_func=None):
     """Pass in a list of file names for upload. If you pass a callback_func, it will be called as
-    callback_func(msg) with a message everytime a file has been uploaded."""
+    callback_func(msg) with a message every time a file has been uploaded."""
+    callback_func('Preparing to upload {:d} files'.format(len(fnames)))
     upload_thread = threading.Thread(target=self.threaded_upload, name='Thread', args=(fnames,callback_func))
     upload_thread.start()
 
   def threaded_upload(self, fnames, callback_func=None):
+    cnt=0
     for f in fnames:
       logger.debug('Uploading {:s}'.format(f))
       self.post(files=open(f,'rb')) #Returns photo id. Need file object
       if callback_func: callback_func('Uploaded {:s}'.format(f))
+      cnt += 1
+    if callback_func: callback_func('Finished uploading {:d} photos'.format(cnt))
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.DEBUG)
