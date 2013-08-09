@@ -62,9 +62,9 @@ u auth           - authorize Flickr to give Chhobi permissions to upload photos
                    This will only work if the api_key and secret is set
                    This will open a browser window to the page where Flickr will as for your authorization
                    After you authorize Flickr you will receive a code.
-u authcode <code> - enter the code you get after enabling authorization.
+u code <code>    - enter the code you get after enabling authorization.
                    This allows Chhobi to get tokens and a secret that will let Chhobi upload photos to your account.
-u s              - upload currently selected file(s) in the disk browser window
+u                - upload currently selected file(s) in the disk browser window
 u p              - upload all files in the pile
 
 Search query syntax:
@@ -398,8 +398,8 @@ class App(object):
       self.clear_pile()
     elif command[:2] == 'z ':
       self.resize_and_show(command[2:].strip().lower().split('x'))
-    elif command[:2] == 'u ':
-      self.uploader(command[2:].strip())
+    elif command[:1] == 'u':
+      self.uploader(command[1:].strip())
 
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
@@ -549,12 +549,12 @@ class App(object):
                        This will only work if the api_key and secret is set
                        This will open a browser window to the page where Flickr will as for your authorization
                        After you authorize Flickr you will receive a code.
-    u code <code> - enter the code you get after enabling authorization.
+    u code <code>    - enter the code you get after enabling authorization.
                        This allows Chhobi to get tokens and a secret that will let Chhobi upload photos to your account.
-    u s              - upload currently selected file(s) in the disk browser window
+    u                - upload currently selected file(s) in the disk browser window
     u p              - upload all files in the pile
     """
-    if command == 's':
+    if command == '':
       self.fup.upload_files([f[0] for f in self.tab.widget_list[0].file_selection()],self.log_command)#Only returns files
     elif command == 'p':
       self.fup.upload_files(self.pile, self.log_command)
