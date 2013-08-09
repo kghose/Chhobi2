@@ -114,7 +114,8 @@ TODO
 - (x) Handle rotations
 - ( ) Bugfix: some kind of bug involving keyword removal
 - (x) Have a quickshow window that shows a larger preview if we pause on a picture for a bit.
-- ( ) Add command to add photos to flikr
+- (x) Add command to add photos to Flickr
+- ( ) Flickr upload should push to command window. Additional flickr options (photo upload privacy etc)
 - ( ) Fix '=' vs '==' issue
 - ( ) Increase the video types handled
 - ( ) Command to force regenerate thumbnail
