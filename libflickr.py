@@ -426,14 +426,17 @@ class Fup(FlickrAPI):
     logger.debug(final_tokens)
     self.set_state(oauth_token=final_tokens['oauth_token'], oauth_token_secret=final_tokens['oauth_token_secret'])
 
-  def upload_files(self, fnames):
-    upload_thread = threading.Thread(target=self.threaded_upload, name='Thread', args=(fnames,))
+  def upload_files(self, fnames, callback_func=None):
+    """Pass in a list of file names for upload. If you pass a callback_func, it will be called as
+    callback_func(msg) with a message everytime a file has been uploaded."""
+    upload_thread = threading.Thread(target=self.threaded_upload, name='Thread', args=(fnames,callback_func))
     upload_thread.start()
 
-  def threaded_upload(self, fnames):
+  def threaded_upload(self, fnames, callback_func=None):
     for f in fnames:
       logger.debug('Uploading {:s}'.format(f))
       self.post(files=open(f,'rb')) #Returns photo id. Need file object
+      if callback_func: callback_func('Uploaded {:s}'.format(f))
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.DEBUG)

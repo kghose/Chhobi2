@@ -555,21 +555,25 @@ class App(object):
     u p              - upload all files in the pile
     """
     if command == 's':
-      self.fup.upload_files([f[0] for f in self.tab.widget_list[0].file_selection()])#Only returns files
+      self.fup.upload_files([f[0] for f in self.tab.widget_list[0].file_selection()],self.log_command)#Only returns files
     elif command == 'p':
-      self.fup.upload_files(self.pile)
+      self.fup.upload_files(self.pile, self.log_command)
     elif command[:3] == 'key':
       self.fup.set_state(api_key = command[3:].strip())
       self.config.set('DEFAULT','apikey', self.fup.api_key)
+      self.log_command('Set api key')
     elif command[:6] == 'secret':
       self.fup.set_state(api_secret = command[6:].strip())
       self.config.set('DEFAULT','apisecret', self.fup.api_secret)
+      self.log_command('Set api secret')
     elif command[:4] == 'auth':
       self.fup.setup_authorization()
+      self.log_command('Asking for authorization')
     elif command[:4] == 'code':
       self.fup.authorize(command[4:].strip())
       self.config.set('DEFAULT','oauthtoken', self.fup.oauth_token)
       self.config.set('DEFAULT','oauthtokensecret', self.fup.oauth_token_secret)
+      self.log_command('Authorized')
 
   def show_help(self):
     top = tki.Toplevel()

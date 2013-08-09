@@ -110,12 +110,14 @@ Chhobi runs exiftool in safe mode, which means your original images are always k
 
 TODO
 ====
+- ( ) Log buffer that you can pull up as a window (like for help)
 - (x) Fix logical bug related to preview and rotations (need to do some pre computations related to final image aspect)
 - (x) Handle rotations
 - ( ) Bugfix: some kind of bug involving keyword removal
 - (x) Have a quickshow window that shows a larger preview if we pause on a picture for a bit.
 - (x) Add command to add photos to Flickr
-- ( ) Flickr upload should push to command window. Additional flickr options (photo upload privacy etc)
+- (x) Flickr upload should push to command window.
+- ( ) Flickr privacy options during upload
 - ( ) Fix '=' vs '==' issue
 - ( ) Increase the video types handled
 - ( ) Command to force regenerate thumbnail
