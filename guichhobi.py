@@ -55,7 +55,17 @@ s <query string> - perform this mdfinder query and set the file browser to this 
 cp               - clear all images from pile
 z WxH            - resize all images in pile to fit within H pixels high and W pixels wide,
                    put them in a temporary directory and reveal the directory
-
+u key <string>   - Set the api_key
+                   If you change the api_key or api_secret, you need to authorize again
+u secret <string>- Set the api_secret
+u auth           - authorize Flickr to give Chhobi permissions to upload photos
+                   This will only work if the api_key and secret is set
+                   This will open a browser window to the page where Flickr will as for your authorization
+                   After you authorize Flickr you will receive a code.
+u authcode <code> - enter the code you get after enabling authorization.
+                   This allows Chhobi to get tokens and a secret that will let Chhobi upload photos to your account.
+u s              - upload currently selected file(s) in the disk browser window
+u p              - upload all files in the pile
 
 Search query syntax:
 Chhobi's search is a very thin layer on top of mdfind. The syntax for mdfind is found at
@@ -75,12 +85,35 @@ Some examples of searches are
 
 s k='rose'  -> find photos with the keyword rose
 s c='*fireworks*'  -> find photos with fireworks in the caption anywhere
+
+Authorizing Flickr to give Chhobi write access:
+
+1. First you need to set the api_key and api_secret for the application. I do have this combination registered for Chhobi
+and you are welcome to use the pair by emailing me a request for them.
+Alternatively, you can go on Flickr and request an App key/secret pair yourself and use those from Chhobi.
+
+2. Set the api key and secret by typing in
+u key <api key>
+u secret <secret>
+
+3. Tell Chhobi to ask for authentication
+u auth
+
+This will open up a browser window and take you to Flickr's authentication page. Say yes to giving permission to
+Chhobi. Copy the code Flicker gives you in the black box.
+
+4. Enter the authentication code you just got
+u code <code>
+
+Now the credentials for Chhobi writing to you account are set. These credentials are stored, in plain text, in the
+chhobi configuration file in your home directory.
+
 """
 import logging
 logger = logging.getLogger(__name__)
 import Tkinter as tki, tempfile, argparse, ConfigParser
 from PIL import Image, ImageTk
-import libchhobi as lch, dirbrowser as dirb, exiftool
+import libchhobi as lch, dirbrowser as dirb, libflickr, exiftool
 from cStringIO import StringIO
 from os.path import join, expanduser
 
@@ -134,6 +167,7 @@ class App(object):
     self.init_vars()
     self.setup_window()
     self.etool = exiftool.PersistentExifTool()
+    self.setup_uploader()
     self.tab.widget_list[0].set_dir_root(self.config.get('DEFAULT','root'))
 
   def cleanup_on_exit(self):
@@ -151,7 +185,11 @@ class App(object):
         'root': './',
         'geometry': 'none',
         'preview geometry': 'none',
-        'preview delay': '250'
+        'preview delay': '250',
+        'apikey': 'none',
+        'apisecret': 'none',
+        'oauthtoken': 'none',
+        'oauthtokensecret': 'none'
     }
     self.config = ConfigParser.ConfigParser(self.config_default)
     self.config.read(self.config_fname)
@@ -159,12 +197,22 @@ class App(object):
   def init_vars(self):
     self.cmd_state = 'Idle'
     self.one_key_cmds = ['1', '2', '3', 'r', 'a', 'x', 'h', 'p', '[', ']']
-    self.command_prefix = ['d', 'c', 'k', 's', 'z']
+    self.command_prefix = ['d', 'c', 'k', 's', 'z', 'u']
     #If we are in Idle mode and hit any of these keys we move into a command mode and no longer propagate keystrokes to the browser window
     self.pile = set([]) #We temporarily 'hold' files here
     self.cmd_history = lch.CmdHist(memory=20)
     self.showing_preview = False #If true, will update the preview image periodically
     self.preview_delay = self.config.getint('DEFAULT', 'preview delay')
+
+  def setup_uploader(self):
+    nf = lambda str: str if str != 'none' else None
+    api_key = nf(self.config.get('DEFAULT', 'apikey'))
+    api_secret = nf(self.config.get('DEFAULT', 'apisecret'))
+    oauth_token = nf(self.config.get('DEFAULT', 'oauthtoken'))
+    oauth_token_secret = nf(self.config.get('DEFAULT', 'oauthtokensecret'))
+    self.fup = libflickr.Fup(api_key=api_key, api_secret=api_secret,
+                             oauth_token=oauth_token, oauth_token_secret=oauth_token_secret,
+                             headers={'User-agent': 'Chhobi'})
 
   def setup_window(self):
     def add_dir_browse(parent):
@@ -350,6 +398,9 @@ class App(object):
       self.clear_pile()
     elif command[:2] == 'z ':
       self.resize_and_show(command[2:].strip().lower().split('x'))
+    elif command[:2] == 'u ':
+      self.uploader(command[2:].strip())
+
     self.cmd_win.delete(1.0, tki.END)
     self.cmd_state = 'Idle'
     self.cmd_history.add(command) #Does not distinguish between valid and invalid commands. Ok?
@@ -488,6 +539,37 @@ class App(object):
     files = self.tab.active_widget.file_selection()
     self.etool.rotate_images(files, dir)
     self.selection_changed()
+
+  def uploader(self, command):
+    """
+    u key <string>   - Set the api_key
+                   If you change the api_key or api_secret, you need to authorize again
+    u secret <string>- Set the api_secret
+    u auth           - authorize Flickr to give Chhobi permissions to upload photos
+                       This will only work if the api_key and secret is set
+                       This will open a browser window to the page where Flickr will as for your authorization
+                       After you authorize Flickr you will receive a code.
+    u code <code> - enter the code you get after enabling authorization.
+                       This allows Chhobi to get tokens and a secret that will let Chhobi upload photos to your account.
+    u s              - upload currently selected file(s) in the disk browser window
+    u p              - upload all files in the pile
+    """
+    if command == 's':
+      self.fup.upload_files([f[0] for f in self.tab.widget_list[0].file_selection()])#Only returns files
+    elif command == 'p':
+      self.fup.upload_files(self.pile)
+    elif command[:3] == 'key':
+      self.fup.set_state(api_key = command[3:].strip())
+      self.config.set('DEFAULT','apikey', self.fup.api_key)
+    elif command[:6] == 'secret':
+      self.fup.set_state(api_secret = command[6:].strip())
+      self.config.set('DEFAULT','apisecret', self.fup.api_secret)
+    elif command[:4] == 'auth':
+      self.fup.setup_authorization()
+    elif command[:4] == 'code':
+      self.fup.authorize(command[4:].strip())
+      self.config.set('DEFAULT','oauthtoken', self.fup.oauth_token)
+      self.config.set('DEFAULT','oauthtokensecret', self.fup.oauth_token_secret)
 
   def show_help(self):
     top = tki.Toplevel()
