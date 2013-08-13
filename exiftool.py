@@ -129,9 +129,10 @@ class PersistentExifTool(object):
     }
     photo_files = [fi for fi in file_list if fi[1]=='file:photo']
     meta_data = self.get_metadata_for_files(photo_files)
+    query = ''
     for fi,md in zip(photo_files, meta_data):
-      query = '{:s}\n-Orientation#={:d}\n'.format(fi[0],rotate_dict[dir][md['Orientation']])
-      self.execute(query, expecting_response=False)
+      query += '{:s}\n-Orientation#={:d}\n'.format(fi[0],rotate_dict[dir][md['Orientation']])
+    self.execute(query, expecting_response=False)
 
   def get_preview_image(self, file):
     """Return a binary string corresponding to the preview image."""
