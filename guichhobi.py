@@ -580,7 +580,7 @@ class App(object):
     top.title("Help")
     msg = tki.Text(top, font=('consolas', 11), wrap=tki.WORD)
     msg.insert(tki.END, __doc__)
-    msg.pack()
+    msg.pack(expand=True, fill='both')
     self.log_command('Showing help')
 
 if __name__ == "__main__":
