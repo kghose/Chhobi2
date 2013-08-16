@@ -409,7 +409,7 @@ class Fup(FlickrAPI):
     cnt=0
     for f in fnames:
       logger.debug('Uploading {:s}'.format(f))
-      self.post(files=open(f,'rb')) #Returns photo id. Need file object
+      self.post(files=open(f,'rb'), params={'is_public': 0, 'is_friend': 0, 'is_family': 0}) #Returns photo id. Need file object
       if callback_func: callback_func('Uploaded {:s}'.format(f))
       cnt += 1
     if callback_func: callback_func('Finished uploading {:d} photos'.format(cnt))
